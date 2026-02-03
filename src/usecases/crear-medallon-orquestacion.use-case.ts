@@ -1,13 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
-interface SingIn {
-    email: string;
-    password: string;
-}
-
 @Injectable()
-export class SignInUseCase {
-    async execute(data: SingIn) {
+export class CrearMedallonOrquestacionUseCase {
+    async execute(data: any) {
         try {
             
         } catch (error) {

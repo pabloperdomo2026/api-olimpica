@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-// import { DatabaseModule } from './database/database.module';
-import { AuthModule } from './modules';
+import { AutenticacionModule, OrquestacionModule } from './modules';
 
 @Module({
   imports: [
@@ -9,8 +8,8 @@ import { AuthModule } from './modules';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    // DatabaseModule,
-    AuthModule,
+    AutenticacionModule,
+    OrquestacionModule,
   ],
   controllers: [],
   providers: [],
