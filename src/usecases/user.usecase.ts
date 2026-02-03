@@ -24,7 +24,7 @@ export class UserUseCase {
         return this.userRepository.create(createUserDto);
     }
 
-    async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<any> {
         const user = await this.getUserById(id);
         return this.userRepository.update(user.id, updateUserDto);
     }
