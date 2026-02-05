@@ -7,6 +7,7 @@ import { OrganizacionModule } from './organizacion/organizacion.module';
 import { ProcesoModule } from './proceso/proceso.module';
 import { RolModule } from './rol/rol.module';
 import { PermisoModule } from './permiso/permiso.module';
+import { PuntoVentaModule } from './punto-venta/punto-venta.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { DatabaseModule } from './database/database.module';
     ProcesoModule,
     RolModule,
     PermisoModule,
+    PuntoVentaModule,
   ],
   controllers: [],
   providers: [],
