@@ -1,6 +1,6 @@
 export interface Usuario {
-  usuarioId: number;
-  organizacionId: number;
+  usuarioId?: string;
+  organizacionId: string;
   email: string;
   passwordHash: string;
   nombre: string;

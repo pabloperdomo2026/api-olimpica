@@ -22,32 +22,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # NestJS API
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: api_nestjs
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres123
-      DB_DATABASE: api_db
-      PORT: 3000
-      NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - api_network
-    volumes:
-      - ./src:/app/src
-      - ./node_modules:/app/node_modules
-
 volumes:
   postgres_data:
     driver: local

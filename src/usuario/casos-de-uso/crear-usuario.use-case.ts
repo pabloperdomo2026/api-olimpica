@@ -1,18 +1,18 @@
-import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
-import { Usuario, UsuarioResponse } from '../interfaces';
+import { Injectable, ConflictException, InternalServerErrorException, HttpException } from '@nestjs/common';
+import { Usuario } from '../interfaces/usuario.interface';
+import { UsuarioResponse } from '../interfaces/usuario-response.interface';
 import { CrearUsuarioDto } from '../dtos';
-import { usuariosDb, simulateDbDelay, getNextId } from './usuarios.data';
+import { UsuarioRepository } from '../usuario.repository';
+import { crearUsuarioMapper } from '../mappers/crear-usuario.mapper';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CrearUsuarioUseCase {
-  async execute(dto: CrearUsuarioDto, usuarioCreacion: string): Promise<UsuarioResponse> {
-    try {
-      await simulateDbDelay();
-      console.log('[DB] SELECT * FROM smr_usuario WHERE email = ?', dto.email);
+  constructor(private readonly usuarioRepository: UsuarioRepository) {}
 
-      const existeEmail = usuariosDb.find(
-        (u) => u.email.toLowerCase() === dto.email.toLowerCase(),
-      );
+  async execute(dto: CrearUsuarioDto): Promise<UsuarioResponse> {
+    try {
+      const existeEmail = await this.usuarioRepository.obtenerPorEmail(dto.email);
 
       if (existeEmail) {
         throw new ConflictException(`El email ${dto.email} ya está registrado`);
@@ -21,7 +21,6 @@ export class CrearUsuarioUseCase {
       const passwordHash = `$2b$10$${Buffer.from(dto.password).toString('base64')}`;
 
       const nuevoUsuario: Usuario = {
-        usuarioId: getNextId(),
         organizacionId: dto.organizacionId,
         email: dto.email,
         passwordHash,
@@ -29,28 +28,20 @@ export class CrearUsuarioUseCase {
         apellido: dto?.apellido,
         activo: true,
         fechaCreacion: new Date(),
-        usuarioCreacion,
+        usuarioCreacion: 'admin@olimpica.com',
       };
 
-      usuariosDb.push(nuevoUsuario);
-      console.log('[DB] INSERT INTO smr_usuario - ID:', nuevoUsuario.usuarioId);
+      const usuarioCreado = await this.usuarioRepository.crear(nuevoUsuario);
 
-      return {
-        usuarioId: nuevoUsuario.usuarioId,
-        organizacionId: nuevoUsuario.organizacionId,
-        email: nuevoUsuario.email,
-        nombre: nuevoUsuario.nombre,
-        apellido: nuevoUsuario.apellido,
-        activo: nuevoUsuario.activo,
-        fechaCreacion: nuevoUsuario.fechaCreacion,
-        fechaModificacion: nuevoUsuario.fechaModificacion,
-      };
+      return crearUsuarioMapper(usuarioCreado);
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      console.error('[DB] Error al crear usuario:', error.message);
-      throw new InternalServerErrorException('Error al crear el usuario');
+      throw new HttpException(
+        {
+          description: 'Error al crear un usuario',
+          errorMessage: error.response
+        },
+        error.status
+      )
     }
   }
 }
