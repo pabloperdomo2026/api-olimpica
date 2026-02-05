@@ -4,7 +4,6 @@ import { UsuarioResponse } from '../interfaces/usuario-response.interface';
 import { CrearUsuarioDto } from '../dtos';
 import { UsuarioRepository } from '../usuario.repository';
 import { crearUsuarioMapper } from '../mappers/crear-usuario.mapper';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CrearUsuarioUseCase {

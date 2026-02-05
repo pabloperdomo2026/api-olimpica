@@ -37,16 +37,14 @@ export class UsuarioController {
     return this.usuarioService.crear(dto);
   }
 
-  // @Get()
-  // @ApiOperation({ summary: 'Listar usuarios', description: 'Obtiene todos los usuarios del sistema' })
-  // @ApiQuery({ name: 'organizacionId', required: false, description: 'Filtrar por organizacion' })
-  // @ApiResponse({ status: 200, description: 'Lista de usuarios obtenida exitosamente' })
-  // async listarTodos(
-  //   @Query('organizacionId') organizacionId?: string,
-  // ): Promise<UsuarioResponse[]> {
-  //   const orgId = organizacionId ? parseInt(organizacionId, 10) : undefined;
-  //   return this.usuarioService.listarTodos(orgId);
-  // }
+  @Get()
+  @ApiOperation({ summary: 'Listar usuarios', description: 'Obtiene todos los usuarios del sistema' })
+  @ApiQuery({ name: 'organizacionId', required: false, description: 'Filtrar por organizacion' })
+  @ApiResponse({ status: 200, description: 'Lista de usuarios obtenida exitosamente' })
+  async listarTodos(): Promise<UsuarioResponse[]> {
+    const organizacionId = '';
+    return this.usuarioService.listarTodos(organizacionId);
+  }
 
   // @Get(':id')
   // @ApiOperation({ summary: 'Obtener usuario por ID', description: 'Obtiene un usuario especifico por su ID' })

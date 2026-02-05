@@ -1,5 +1,5 @@
 export interface UsuarioResponse {
-  usuarioId: string;
+  id: string;
   organizacionId: string;
   email: string;
   nombre: string;
