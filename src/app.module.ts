@@ -4,6 +4,7 @@ import { AutenticacionModule } from './autenticacion/autenticacion.module';
 import { OrquestacionModule } from './orquestacion/orquestacion.module';
 import { UsuarioModule } from './usuario/usuario.module';
 import { OrganizacionModule } from './organizacion/organizacion.module';
+import { ProcesoModule } from './proceso/proceso.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { DatabaseModule } from './database/database.module';
     OrquestacionModule,
     UsuarioModule,
     OrganizacionModule,
+    ProcesoModule,
   ],
   controllers: [],
   providers: [],
