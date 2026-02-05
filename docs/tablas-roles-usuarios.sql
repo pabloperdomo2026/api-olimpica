@@ -55,3 +55,27 @@ CREATE TABLE smr_proceso (
     organizacion_id1 INTEGER,
     CONSTRAINT fk_proceso_organizacion FOREIGN KEY (organizacion_id) REFERENCES smr_organizacion(id)
 );
+
+CREATE TABLE smr_rol (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    activo CHAR(1) DEFAULT 'S' CHECK (activo IN ('S', 'N')),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(100),
+    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_modificacion VARCHAR(100)
+);
+
+CREATE TABLE smr_permiso (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    nombre VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    activo CHAR(1) DEFAULT 'S' CHECK (activo IN ('S', 'N')),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_creacion VARCHAR(100),
+    fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_modificacion VARCHAR(100)
+);

@@ -25,11 +25,10 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .setContact('Equipo de Desarrollo', 'https://olimpica.com', 'desarrollo@olimpica.com')
     .addBearerAuth()
-    .addTag('Usuarios', 'Gestion de usuarios del sistema')
     .addTag('Autenticacion', 'Login y manejo de sesiones')
-    .addTag('Procesos', 'Configuracion de procesos ETL')
-    .addTag('Ejecuciones', 'Monitoreo de ejecuciones')
     .addTag('Organizaciones', 'Gestion de organizaciones')
+    .addTag('Procesos', 'Configuracion de procesos ETL')
+    .addTag('Usuarios', 'Gestion de usuarios del sistema')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

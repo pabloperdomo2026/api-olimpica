@@ -5,6 +5,8 @@ import { OrquestacionModule } from './orquestacion/orquestacion.module';
 import { UsuarioModule } from './usuario/usuario.module';
 import { OrganizacionModule } from './organizacion/organizacion.module';
 import { ProcesoModule } from './proceso/proceso.module';
+import { RolModule } from './rol/rol.module';
+import { PermisoModule } from './permiso/permiso.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -19,6 +21,8 @@ import { DatabaseModule } from './database/database.module';
     UsuarioModule,
     OrganizacionModule,
     ProcesoModule,
+    RolModule,
+    PermisoModule,
   ],
   controllers: [],
   providers: [],
