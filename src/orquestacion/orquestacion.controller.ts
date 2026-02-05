@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { CrearFrameworkOrquestacionUseCase, CrearMedallonOrquestacionUseCase, CrearPublicacionOrquestacionUseCase } from "src/usecases";
+import { CrearFrameworkOrquestacionUseCase, CrearMedallonOrquestacionUseCase, CrearPublicacionOrquestacionUseCase } from "src/orquestacion/casos-de-uso";
 
 @Controller({ version: '1', path: 'orquestacion' })
 export class OrquestacionController {

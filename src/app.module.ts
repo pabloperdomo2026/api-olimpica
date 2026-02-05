@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AutenticacionModule, OrquestacionModule } from './modules';
+import { AutenticacionModule } from './autenticacion/autenticacion.module';
+import { OrquestacionModule } from './orquestacion/orquestacion.module';
+import { UsuarioModule } from './usuario/usuario.module';
 
 @Module({
   imports: [
@@ -10,6 +12,7 @@ import { AutenticacionModule, OrquestacionModule } from './modules';
     }),
     AutenticacionModule,
     OrquestacionModule,
+    UsuarioModule,
   ],
   controllers: [],
   providers: [],

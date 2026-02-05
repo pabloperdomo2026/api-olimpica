@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AutenticacionController } from '../controllers';
-import { LoginUseCase } from 'src/usecases/login.use-case';
+
+import { LoginUseCase } from 'src/orquestacion/casos-de-uso/login.use-case';
+import { AutenticacionController } from './autenticacion.controller';
 
 @Module({
     controllers: [AutenticacionController],

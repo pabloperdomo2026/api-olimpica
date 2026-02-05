@@ -3,8 +3,8 @@ import {
     Post,
     Body,
 } from '@nestjs/common';
-import { LoginUseCase } from 'src/usecases/login.use-case';
-import { SignInDto } from 'src/dtos/sign-in.dto';
+import { LoginUseCase } from 'src/orquestacion/casos-de-uso/login.use-case';
+import { SignInDto } from 'src/orquestacion/dtos/sign-in.dto';
 
 @Controller({ version: '1', path: 'auth' })
 export class AutenticacionController {
