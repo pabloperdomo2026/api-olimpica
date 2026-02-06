@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { CrearFrameworkOrquestacionUseCase, CrearMedallonOrquestacionUseCase, CrearPublicacionOrquestacionUseCase } from "src/orquestacion/casos-de-uso";
+import { CrearFrameworkOrquestacionDto } from "./dtos/crear-framework-orquestacion.dto";
 
 @Controller({ version: '1', path: 'orquestacion' })
 export class OrquestacionController {
@@ -10,8 +11,8 @@ export class OrquestacionController {
     ) { }
     
     @Post('crear-framework')
-    async crearFramework(@Body() data: any) {
-        return this.crearFrameworkOrquestacionUseCase.execute(data);
+    async crearFramework(@Body() dto: CrearFrameworkOrquestacionDto) {
+        return this.crearFrameworkOrquestacionUseCase.execute(dto);
     }
 
     @Post('crear-medallon')

@@ -13,5 +13,5 @@ export const getDatabaseConfig = (
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: true,
   logging: configService.get<string>('NODE_ENV') === 'development',
-  autoLoadEntities: true,
+  autoLoadEntities: false,
 });
