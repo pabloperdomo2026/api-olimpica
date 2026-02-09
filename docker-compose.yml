@@ -22,6 +22,29 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api_nest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres123
+      DB_DATABASE: api_db
+      PORT: 3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    networks:
+      - api_network
+
 volumes:
   postgres_data:
     driver: local
