@@ -9,6 +9,7 @@ import { RolModule } from './rol/rol.module';
 import { PermisoModule } from './permiso/permiso.module';
 import { PuntoVentaModule } from './punto-venta/punto-venta.module';
 import { DatabaseModule } from './database/database.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DatabaseModule } from './database/database.module';
     RolModule,
     PermisoModule,
     PuntoVentaModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
