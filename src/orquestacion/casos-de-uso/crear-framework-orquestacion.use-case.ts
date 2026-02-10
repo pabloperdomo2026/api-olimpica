@@ -11,7 +11,7 @@ export class CrearFrameworkOrquestacionUseCase {
     ) {}
 
     async execute(dto: CrearFrameworkOrquestacionDto) {
-        const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
+        const region = this.configService.get<string>('AWS_REGION', 'us-east-2');
         const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
         
         if (!accountId) {
@@ -28,7 +28,7 @@ export class CrearFrameworkOrquestacionUseCase {
 
         // Construir el ARN de la Step Function
         // Formato: arn:aws:states:REGION:ACCOUNT_ID:stateMachine:NAME
-        const stateMachineArn = `arn:aws:states:${region}:${accountId}:stateMachine:${dto.stepFunctionName}`;
+        const stateMachineArn = 'arn:aws:states:us-east-2:315435444246:stateMachine:smr-sfn-desplegar-framework' // `arn:aws:states:${region}:${accountId}:stateMachine:${dto.stepFunctionName}`;
 
         const body = {
             "p_ambiente": "dev",
