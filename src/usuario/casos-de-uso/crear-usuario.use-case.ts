@@ -5,10 +5,14 @@ import { UsuarioResponse } from '../interfaces/usuario-response.interface';
 import { CrearUsuarioDto } from '../dtos';
 import { UsuarioRepository } from '../usuario.repository';
 import { crearUsuarioMapper } from '../mappers/crear-usuario.mapper';
+import { OrganizacionRepository } from 'src/organizacion/organizacion.repository';
 
 @Injectable()
 export class CrearUsuarioUseCase {
-  constructor(private readonly usuarioRepository: UsuarioRepository) {}
+  constructor(
+    private readonly usuarioRepository: UsuarioRepository,
+    private readonly organizacionRepository: OrganizacionRepository
+  ) {}
 
   async execute(dto: CrearUsuarioDto): Promise<UsuarioResponse> {
     try {
@@ -16,6 +20,12 @@ export class CrearUsuarioUseCase {
 
       if (existeEmail) {
         throw new ConflictException(`El email ${dto.email} ya está registrado`);
+      }
+
+      const organizacion = await this.organizacionRepository.obtenerPorId(dto.organizacionId);
+
+      if (!organizacion) {
+        throw new ConflictException(`La organizacion ${dto.organizacionId} no está registrada`);
       }
 
       const passwordHash = await bcrypt.hash(dto.password, 10);

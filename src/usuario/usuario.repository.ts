@@ -37,4 +37,13 @@ export class UsuarioRepository {
   async obtenerPorEmail(email: string): Promise<UsuarioEntity | null> {
     return this.usuarioRepository.findOne({ where: { email } });
   }
+
+  async actualizar(id: string, data: Partial<UsuarioEntity>): Promise<UsuarioEntity | null> {
+    await this.usuarioRepository.update(id, data);
+    return this.obtenerPorId(id);
+  }
+
+  async eliminar(id: string): Promise<void> {
+    await this.usuarioRepository.delete(id);
+  }
 }
