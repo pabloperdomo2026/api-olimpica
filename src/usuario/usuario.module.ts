@@ -20,6 +20,6 @@ import { UsuarioEntity } from './usuario.entity';
     // EliminarUsuarioUseCase,
     UsuarioRepository,
   ],
-  exports: [UsuarioService],
+  exports: [UsuarioService, UsuarioRepository],
 })
 export class UsuarioModule {}

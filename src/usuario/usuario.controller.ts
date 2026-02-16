@@ -8,6 +8,7 @@ import {
   Param,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,6 +18,7 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../autenticacion/guards/jwt-auth.guard';
 import { UsuarioService } from './usuario.service';
 import { UsuarioResponse } from './interfaces/usuario-response.interface';
 import { CrearUsuarioDto, ActualizarUsuarioDto } from './dtos';
@@ -24,6 +26,7 @@ import { CrearUsuarioDto, ActualizarUsuarioDto } from './dtos';
 
 @ApiTags('Usuarios')
 @ApiBearerAuth()
+// @UseGuards(JwtAuthGuard)
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}

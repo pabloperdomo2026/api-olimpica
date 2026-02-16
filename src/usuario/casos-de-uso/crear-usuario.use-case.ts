@@ -1,4 +1,5 @@
 import { Injectable, ConflictException, InternalServerErrorException, HttpException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { Usuario } from '../interfaces/usuario.interface';
 import { UsuarioResponse } from '../interfaces/usuario-response.interface';
 import { CrearUsuarioDto } from '../dtos';
@@ -17,7 +18,7 @@ export class CrearUsuarioUseCase {
         throw new ConflictException(`El email ${dto.email} ya está registrado`);
       }
 
-      const passwordHash = `$2b$10$${Buffer.from(dto.password).toString('base64')}`;
+      const passwordHash = await bcrypt.hash(dto.password, 10);
 
       const nuevoUsuario: Usuario = {
         organizacionId: dto.organizacionId,
