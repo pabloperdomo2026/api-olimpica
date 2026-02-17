@@ -22,16 +22,21 @@ export class CrearUsuarioUseCase {
         throw new ConflictException(`El email ${dto.email} ya está registrado`);
       }
 
-      const organizacion = await this.organizacionRepository.obtenerPorId(dto.organizacionId);
+      let organizacion: any = null;
 
-      if (!organizacion) {
-        throw new ConflictException(`La organizacion ${dto.organizacionId} no está registrada`);
+      if (dto.organizacionId) {
+        organizacion = await this.organizacionRepository.obtenerPorId(dto.organizacionId);
       }
+
+
+      // if (!organizacion) {
+      //   throw new ConflictException(`La organizacion ${dto.organizacionId} no está registrada`);
+      // }
 
       const passwordHash = await bcrypt.hash(dto.password, 10);
 
       const nuevoUsuario: Usuario = {
-        organizacionId: dto.organizacionId,
+        organizacionId: organizacion ? organizacion.id : null,
         email: dto.email,
         passwordHash,
         nombre: dto.nombre,
@@ -45,6 +50,7 @@ export class CrearUsuarioUseCase {
 
       return crearUsuarioMapper(usuarioCreado);
     } catch (error) {
+      console.log(error)
       throw new HttpException(
         {
           description: 'Error al crear un usuario',

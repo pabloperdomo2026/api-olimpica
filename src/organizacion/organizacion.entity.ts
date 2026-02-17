@@ -1,9 +1,11 @@
+import { UsuarioEntity } from 'src/usuario/usuario.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany,
   } from 'typeorm';
   
   @Entity('smr_organizacion')
@@ -55,4 +57,7 @@ import {
   
     @Column({ name: 'pertenece_a', type: 'integer', nullable: true })
     perteneceA: number;
+
+    @OneToMany(() => UsuarioEntity, (usuario) => usuario.organizacion)
+    usuarios: UsuarioEntity
   }

@@ -14,11 +14,14 @@ import {
     @PrimaryGeneratedColumn('uuid', { name: 'id' })
     id: string;
   
-    @Column({ type: 'uuid', name: 'organizacion_id' })
-    organizacionId: string;
+    @Column({ type: 'uuid', name: 'organizacion_id', nullable: true })
+    organizacionId?: string;
 
-    @ManyToOne(() => OrganizacionEntity)
-    @JoinColumn({ name: 'organizacion_id' })
+    @ManyToOne(() => OrganizacionEntity, (organizacion) => organizacion.usuarios, {
+      nullable: true,
+      onDelete: 'SET NULL'
+    })
+    @JoinColumn({ name: 'organizacion_id', })
     organizacion: OrganizacionEntity;
   
     @Column({ type: 'varchar', length: 255, unique: true })

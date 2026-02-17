@@ -15,7 +15,7 @@ export interface LoginResponse {
     email: string;
     nombre: string;
     apellido: string;
-    organizacionId: string;
+    organizacionId?: string;
   };
 }
 
@@ -54,7 +54,7 @@ export class LoginUseCase {
         email: usuario.email,
         nombre: usuario.nombre,
         apellido: usuario.apellido,
-        organizacionId: usuario.organizacionId,
+        organizacionId: usuario?.organizacionId,
       },
     };
   }

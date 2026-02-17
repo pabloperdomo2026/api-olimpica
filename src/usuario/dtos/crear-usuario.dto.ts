@@ -4,8 +4,8 @@ import { IsString, IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 export class CrearUsuarioDto {
   @ApiProperty({ example: 1, description: 'ID de la organizacion' })
   @IsString()
-  @IsNotEmpty()
-  organizacionId: string;
+  @IsOptional()
+  organizacionId?: string;
 
   @ApiProperty({ example: 'usuario@olimpica.com', description: 'Correo electronico' })
   @IsEmail()
