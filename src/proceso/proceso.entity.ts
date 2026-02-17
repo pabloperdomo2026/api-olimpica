@@ -8,17 +8,19 @@ import {
     JoinColumn,
   } from 'typeorm';
   
+  import { OrganizacionEntity } from '../organizacion/organizacion.entity';
+
   @Entity('smr_proceso')
   export class ProcesoEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-  
+
     @Column({ name: 'organizacion_id', type: 'uuid' })
     organizacionId: string;
-  
-    // @ManyToOne(() => SmrOrganizacion)
-    // @JoinColumn({ name: 'organizacion_id' })
-    // organizacion: SmrOrganizacion;
+
+    @ManyToOne(() => OrganizacionEntity)
+    @JoinColumn({ name: 'organizacion_id' })
+    organizacion: OrganizacionEntity;
   
     @Column({ name: 'tipo_proceso_id', type: 'integer' })
     tipoProcesoId: number;

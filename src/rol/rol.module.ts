@@ -20,6 +20,6 @@ import { EliminarRolUseCase } from './casos-de-uso/eliminar-rol.use-case';
     EditarRolUseCase,
     EliminarRolUseCase,
   ],
-  exports: [RolService],
+  exports: [RolService, RolRepository],
 })
 export class RolModule {}

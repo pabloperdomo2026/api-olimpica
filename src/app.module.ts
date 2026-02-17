@@ -10,6 +10,8 @@ import { PermisoModule } from './permiso/permiso.module';
 import { PuntoVentaModule } from './punto-venta/punto-venta.module';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
+import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
+import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
 
 @Module({
   imports: [
@@ -21,9 +23,11 @@ import { HealthModule } from './health/health.module';
     AutenticacionModule,
     OrquestacionModule,
     UsuarioModule,
+    UsuarioRolModule,
     OrganizacionModule,
     ProcesoModule,
     RolModule,
+    RolPermisoModule,
     PermisoModule,
     PuntoVentaModule,
     HealthModule,

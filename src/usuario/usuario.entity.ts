@@ -4,7 +4,10 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    ManyToOne,
+    JoinColumn,
   } from 'typeorm';
+  import { OrganizacionEntity } from '../organizacion/organizacion.entity';
   
   @Entity('smr_dim_usuario')
   export class UsuarioEntity {
@@ -13,6 +16,10 @@ import {
   
     @Column({ type: 'uuid', name: 'organizacion_id' })
     organizacionId: string;
+
+    @ManyToOne(() => OrganizacionEntity)
+    @JoinColumn({ name: 'organizacion_id' })
+    organizacion: OrganizacionEntity;
   
     @Column({ type: 'varchar', length: 255, unique: true })
     email: string;
