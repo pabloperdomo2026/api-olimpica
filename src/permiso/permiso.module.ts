@@ -20,6 +20,6 @@ import { EliminarPermisoUseCase } from './casos-de-uso/eliminar-permiso.use-case
     EditarPermisoUseCase,
     EliminarPermisoUseCase,
   ],
-  exports: [PermisoService],
+  exports: [PermisoService, PermisoRepository],
 })
 export class PermisoModule {}

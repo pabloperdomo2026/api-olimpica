@@ -12,6 +12,8 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
+import { ProveedorCloudModule } from './proveedor-cloud/proveedor-cloud.module';
+import { ServicioCloudModule } from './servicio-cloud/servicio-cloud.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
     UsuarioModule,
     UsuarioRolModule,
     OrganizacionModule,
+    ProveedorCloudModule,
+    ServicioCloudModule,
     ProcesoModule,
     RolModule,
     RolPermisoModule,
