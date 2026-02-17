@@ -14,8 +14,8 @@ import {
     @PrimaryGeneratedColumn('uuid')
     id: string;
   
-    @Column({ name: 'proveedor_cloud_id', type: 'numeric' })
-    proveedorCloudId: number;
+    @Column({ name: 'proveedor_cloud_id' })
+    proveedorCloudId: string;
   
     @Column({ type: 'varchar', length: 100 })
     region: string;
@@ -68,8 +68,8 @@ import {
     @Column({ name: 'usuario_modificacion', type: 'varchar', length: 50, nullable: true })
     usuarioModificacion: string;
   
-    @Column({ name: 'organizacion_id', type: 'numeric' })
-    organizacionId: number;
+    @Column({ name: 'organizacion_id' })
+    organizacionId: string;
   
     @ManyToOne(() => ProveedorCloudEntity)
     @JoinColumn({ name: 'proveedor_cloud_id' })
