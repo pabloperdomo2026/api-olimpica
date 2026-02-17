@@ -14,6 +14,9 @@ import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
 import { ProveedorCloudModule } from './proveedor-cloud/proveedor-cloud.module';
 import { ServicioCloudModule } from './servicio-cloud/servicio-cloud.module';
+import { MonedaModule } from './moneda/moneda.module';
+import { ParametrosGlobalesModule } from './parametros-globales/parametros-globales.module';
+import { CalendarioModule } from './calendario/calendario.module';
 
 @Module({
   imports: [
@@ -34,7 +37,10 @@ import { ServicioCloudModule } from './servicio-cloud/servicio-cloud.module';
     RolPermisoModule,
     PermisoModule,
     PuntoVentaModule,
+    MonedaModule,
+    ParametrosGlobalesModule,
     HealthModule,
+    CalendarioModule,
   ],
   controllers: [],
   providers: [],
