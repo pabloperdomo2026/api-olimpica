@@ -39,7 +39,7 @@ export class DmDimFechaEntity {
   @Column({ name: 'nombre_mes', type: 'varchar', length: 20, nullable: true })
   nombreMes: string;
 
-  @Column({ name: 'nombre_trimestre', type: 'varchar', length: 20, nullable: true })
+  @Column({ name: 'nombre_trimestre', type: 'varchar', length: 40, nullable: true })
   nombreTrimestre: string;
 
   @Column({ name: 'anio_mes', type: 'varchar', length: 10, nullable: true })
