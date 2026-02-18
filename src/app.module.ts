@@ -29,6 +29,8 @@ import { MensajeErrorModule } from './mensaje-error/mensaje-error.module';
 import { FuncionesSistemaModule } from './funciones-sistema/funciones-sistema.module';
 import { DestinoDatosModule } from './destino-datos/destino-datos.module';
 import { TasaCambioModule } from './tasa-cambio/tasa.cambio.module';
+import { ColumnaDestinoModule } from './columna-destino/columna-destino.module';
+import { FuenteDatosModule } from './fuente-datos/fuente-datos.module';
 
 @Module({
   imports: [
@@ -65,6 +67,8 @@ import { TasaCambioModule } from './tasa-cambio/tasa.cambio.module';
     FuncionesSistemaModule,
     DestinoDatosModule,
     TasaCambioModule,
+    ColumnaDestinoModule,
+    FuenteDatosModule,
   ],
   controllers: [],
   providers: [],
