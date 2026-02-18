@@ -26,6 +26,9 @@ import { TipoProcesoModule } from './tipo-proceso/tipo-proceso.module';
 import { TipoProgramacionModule } from './tipo-programacion/tipo-programacion.module';
 import { EstadoProcesoModule } from './status-proceso/estado-proceso.module';
 import { MensajeErrorModule } from './mensaje-error/mensaje-error.module';
+import { FuncionesSistemaModule } from './funciones-sistema/funciones-sistema.module';
+import { DestinoDatosModule } from './destino-datos/destino-datos.module';
+import { TasaCambioModule } from './tasa-cambio/tasa.cambio.module';
 
 @Module({
   imports: [
@@ -59,6 +62,9 @@ import { MensajeErrorModule } from './mensaje-error/mensaje-error.module';
     TipoProgramacionModule,
     EstadoProcesoModule,
     MensajeErrorModule,
+    FuncionesSistemaModule,
+    DestinoDatosModule,
+    TasaCambioModule,
   ],
   controllers: [],
   providers: [],
