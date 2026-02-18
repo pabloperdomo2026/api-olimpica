@@ -25,6 +25,7 @@ import { TipoFuenteModule } from './tipo-fuente/tipo-fuente.module';
 import { TipoProcesoModule } from './tipo-proceso/tipo-proceso.module';
 import { TipoProgramacionModule } from './tipo-programacion/tipo-programacion.module';
 import { EstadoProcesoModule } from './status-proceso/estado-proceso.module';
+import { MensajeErrorModule } from './mensaje-error/mensaje-error.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { EstadoProcesoModule } from './status-proceso/estado-proceso.module';
     TipoProcesoModule,
     TipoProgramacionModule,
     EstadoProcesoModule,
+    MensajeErrorModule,
   ],
   controllers: [],
   providers: [],
