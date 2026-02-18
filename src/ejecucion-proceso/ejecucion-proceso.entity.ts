@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { OrganizacionEntity } from '../organizacion/organizacion.entity';
 import { ProcesoEntity } from '../proceso/proceso.entity';
-import { StatusProcesoEntity } from '../status-proceso/status-proceso.entity';
+import { EstadoProcesoEntity } from '../status-proceso/estado-proceso.entity';
 
 @Entity('smr_ejecucion_proceso')
 export class EjecucionProcesoEntity {
@@ -33,9 +33,9 @@ export class EjecucionProcesoEntity {
   @Column({ name: 'status_proceso_id', type: 'uuid' })
   statusProcesoId: string;
 
-  @ManyToOne(() => StatusProcesoEntity)
+  @ManyToOne(() => EstadoProcesoEntity)
   @JoinColumn({ name: 'status_proceso_id' })
-  statusProceso: StatusProcesoEntity;
+  statusProceso: EstadoProcesoEntity;
 
   @Column({ name: 'fecha_ejecucion', type: 'date' })
   fechaEjecucion: Date;

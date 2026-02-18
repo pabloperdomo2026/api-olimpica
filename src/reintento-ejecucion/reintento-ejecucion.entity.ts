@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { EjecucionProcesoEntity } from '../ejecucion-proceso/ejecucion-proceso.entity';
 import { EjecucionLoteEntity } from '../ejecucion-lote/ejecucion-lote.entity';
-import { StatusProcesoEntity } from '../status-proceso/status-proceso.entity';
+import { EstadoProcesoEntity } from '../status-proceso/estado-proceso.entity';
 
 @Entity('smr_reintento_ejecucion')
 export class ReintentoEjecucionEntity {
@@ -42,9 +42,9 @@ export class ReintentoEjecucionEntity {
   @Column({ name: 'status_proceso_id', type: 'uuid' })
   statusProcesoId: string;
 
-  @ManyToOne(() => StatusProcesoEntity)
+  @ManyToOne(() => EstadoProcesoEntity)
   @JoinColumn({ name: 'status_proceso_id' })
-  statusProceso: StatusProcesoEntity;
+  statusProceso: EstadoProcesoEntity;
 
   @Column({ name: 'razon_reintento', type: 'varchar', length: 2000, nullable: true })
   razonReintento: string;

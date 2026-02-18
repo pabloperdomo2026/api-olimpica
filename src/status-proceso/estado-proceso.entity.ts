@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity('smr_status_proceso')
-export class StatusProcesoEntity {
+export class EstadoProcesoEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

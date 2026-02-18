@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { EjecucionProcesoEntity } from '../ejecucion-proceso/ejecucion-proceso.entity';
-import { StatusProcesoEntity } from '../status-proceso/status-proceso.entity';
+import { EstadoProcesoEntity } from '../status-proceso/estado-proceso.entity';
 
 @Entity('smr_ejecucion_paso')
 export class EjecucionPasoEntity {
@@ -28,9 +28,9 @@ export class EjecucionPasoEntity {
   @Column({ name: 'status_proceso_id', type: 'uuid' })
   statusProcesoId: string;
 
-  @ManyToOne(() => StatusProcesoEntity)
+  @ManyToOne(() => EstadoProcesoEntity)
   @JoinColumn({ name: 'status_proceso_id' })
-  statusProceso: StatusProcesoEntity;
+  statusProceso: EstadoProcesoEntity;
 
   @Column({ name: 'fecha_hora_inicio', type: 'timestamp' })
   fechaHoraInicio: Date;

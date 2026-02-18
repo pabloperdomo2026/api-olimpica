@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { EjecucionLoteEntity } from '../ejecucion-lote/ejecucion-lote.entity';
-import { StatusProcesoEntity } from '../status-proceso/status-proceso.entity';
+import { EstadoProcesoEntity } from '../status-proceso/estado-proceso.entity';
 
 @Entity('smr_ejecucion_detalle_registro')
 export class EjecucionDetalleRegistroEntity {
@@ -42,9 +42,9 @@ export class EjecucionDetalleRegistroEntity {
   @Column({ name: 'status_proceso_id', type: 'uuid' })
   statusProcesoId: string;
 
-  @ManyToOne(() => StatusProcesoEntity)
+  @ManyToOne(() => EstadoProcesoEntity)
   @JoinColumn({ name: 'status_proceso_id' })
-  statusProceso: StatusProcesoEntity;
+  statusProceso: EstadoProcesoEntity;
 
   @Column({ name: 'mensaje_error', type: 'varchar', length: 4000, nullable: true })
   mensajeError: string;

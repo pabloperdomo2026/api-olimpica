@@ -10,7 +10,7 @@ import {
 import { OrganizacionEntity } from '../organizacion/organizacion.entity';
 import { EjecucionProcesoEntity } from '../ejecucion-proceso/ejecucion-proceso.entity';
 import { EjecucionPasoEntity } from '../ejecucion-paso/ejecucion-paso.entity';
-import { StatusProcesoEntity } from '../status-proceso/status-proceso.entity';
+import { EstadoProcesoEntity } from '../status-proceso/estado-proceso.entity';
 
 @Entity('smr_ejecucion_lote')
 export class EjecucionLoteEntity {
@@ -41,9 +41,9 @@ export class EjecucionLoteEntity {
   @Column({ name: 'status_proceso_id', type: 'uuid' })
   statusProcesoId: string;
 
-  @ManyToOne(() => StatusProcesoEntity)
+  @ManyToOne(() => EstadoProcesoEntity)
   @JoinColumn({ name: 'status_proceso_id' })
-  statusProceso: StatusProcesoEntity;
+  statusProceso: EstadoProcesoEntity;
 
   @Column({ name: 'status_http_id', type: 'numeric', nullable: true })
   statusHttpId: number;
