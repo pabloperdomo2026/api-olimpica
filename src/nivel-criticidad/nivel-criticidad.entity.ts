@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('smr_nivel_criticidad')
-export class NivelCriticidad {
+export class NivelCriticidadEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

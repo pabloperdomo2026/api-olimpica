@@ -17,6 +17,13 @@ import { ServicioCloudModule } from './servicio-cloud/servicio-cloud.module';
 import { MonedaModule } from './moneda/moneda.module';
 import { ParametrosGlobalesModule } from './parametros-globales/parametros-globales.module';
 import { CalendarioModule } from './calendario/calendario.module';
+import { NivelCriticidadModule } from './nivel-criticidad/nivel-criticidad.module';
+import { TipoAlertaModule } from './tipo-alerta/tipo-alerta.module';
+import { TipoDatoModule } from './tipo-dato/tipo-dato.module';
+import { TipoDestinoModule } from './tipo-destino/tipo-destino.module';
+import { TipoFuenteModule } from './tipo-fuente/tipo-fuente.module';
+import { TipoProcesoModule } from './tipo-proceso/tipo-proceso.module';
+import { TipoProgramacionModule } from './tipo-programacion/tipo-programacion.module';
 
 @Module({
   imports: [
@@ -41,6 +48,13 @@ import { CalendarioModule } from './calendario/calendario.module';
     ParametrosGlobalesModule,
     HealthModule,
     CalendarioModule,
+    NivelCriticidadModule,
+    TipoAlertaModule,
+    TipoDatoModule,
+    TipoDestinoModule,
+    TipoFuenteModule,
+    TipoProcesoModule,
+    TipoProgramacionModule
   ],
   controllers: [],
   providers: [],
