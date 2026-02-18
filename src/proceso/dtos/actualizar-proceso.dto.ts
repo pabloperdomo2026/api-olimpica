@@ -1,68 +1,74 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNumber, IsOptional, IsBoolean } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class ActualizarProcesoDto {
-  @ApiProperty({ example: 1, description: 'ID del tipo de proceso', required: false })
+  @ApiPropertyOptional({ description: 'ID del tipo de proceso' })
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   tipoProcesoId?: number;
 
-  @ApiProperty({ example: 1, description: 'ID del nivel de criticidad', required: false })
+  @ApiPropertyOptional({ description: 'ID del nivel de criticidad' })
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   nivelCriticidadId?: number;
 
-  @ApiProperty({ example: 'Proceso ETL Ventas', description: 'Nombre del proceso', required: false })
+  @ApiPropertyOptional({ description: 'Nombre del proceso', maxLength: 255 })
   @IsString()
   @IsOptional()
   nombre?: string;
 
-  @ApiProperty({ example: 'Proceso de extraccion de ventas diarias', description: 'Descripcion del proceso', required: false })
+  @ApiPropertyOptional({ description: 'Descripcion del proceso' })
   @IsString()
   @IsOptional()
   descripcion?: string;
 
-  @ApiProperty({ example: '1.0.1', description: 'Version del proceso', required: false })
+  @ApiPropertyOptional({ description: 'Version del proceso', maxLength: 50 })
   @IsString()
   @IsOptional()
   version?: string;
 
-  @ApiProperty({ example: 'arn:aws:states:us-east-1:123456789:stateMachine:proceso', description: 'ID del workflow en la nube', required: false })
+  @ApiPropertyOptional({ description: 'ID del workflow en la nube', maxLength: 255 })
   @IsString()
   @IsOptional()
   idWorkflowCloud?: string;
 
-  @ApiProperty({ example: 'secret-key-123', description: 'Secret del workflow', required: false })
+  @ApiPropertyOptional({ description: 'Secret del workflow', maxLength: 255 })
   @IsString()
   @IsOptional()
   workflowSecret?: string;
 
-  @ApiProperty({ example: '{"timeout": 3600}', description: 'Parametros en formato JSON', required: false })
+  @ApiPropertyOptional({ description: 'Parametros en formato JSON' })
   @IsString()
   @IsOptional()
   parametrosJson?: string;
 
-  @ApiProperty({ example: 1, description: 'ID del servicio cloud', required: false })
+  @ApiPropertyOptional({ description: 'ID del servicio cloud' })
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   servicioCloudId?: number;
 
-  @ApiProperty({ example: 'S', description: 'Es proceso inicial (S/N)', required: false })
-  @IsString()
+  @ApiPropertyOptional({ description: 'Es el proceso inicial del flujo' })
+  @IsBoolean()
   @IsOptional()
-  esProcesoInicial?: string;
+  esProcesoInicial?: boolean;
 
-  @ApiProperty({ example: 'S', description: 'Estado activo (S/N)', required: false })
-  @IsString()
+  @ApiPropertyOptional({ description: 'Estado activo/inactivo' })
+  @IsBoolean()
   @IsOptional()
-  activo?: string;
+  activo?: boolean;
 
-  @ApiProperty({ example: 1, description: 'ID del destino', required: false })
+  @ApiPropertyOptional({ description: 'ID del destino' })
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   destinoId?: number;
 
-  @ApiProperty({ example: 1, description: 'ID de la fuente', required: false })
+  @ApiPropertyOptional({ description: 'ID de la fuente' })
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   fuenteId?: number;

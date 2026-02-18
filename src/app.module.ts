@@ -31,6 +31,8 @@ import { DestinoDatosModule } from './destino-datos/destino-datos.module';
 import { TasaCambioModule } from './tasa-cambio/tasa.cambio.module';
 import { ColumnaDestinoModule } from './columna-destino/columna-destino.module';
 import { FuenteDatosModule } from './fuente-datos/fuente-datos.module';
+import { ColumnaOrigenModule } from './columna-origen/columna-origen.module';
+import { ProcesoMapeoCampoModule } from './proceso-mapeo-campo/proceso-mapeo-campo.module';
 
 @Module({
   imports: [
@@ -69,6 +71,8 @@ import { FuenteDatosModule } from './fuente-datos/fuente-datos.module';
     TasaCambioModule,
     ColumnaDestinoModule,
     FuenteDatosModule,
+    ColumnaOrigenModule,
+    ProcesoMapeoCampoModule,
   ],
   controllers: [],
   providers: [],

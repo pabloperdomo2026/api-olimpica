@@ -10,8 +10,8 @@ export interface ProcesoResponse {
   idWorkflowCloud?: string;
   parametrosJson?: string;
   servicioCloudId?: number;
-  esProcesoInicial: string;
-  activo: string;
+  esProcesoInicial: boolean;
+  activo: boolean;
   fechaCreacion: Date;
   fechaModificacion?: Date;
   destinoId?: number;
