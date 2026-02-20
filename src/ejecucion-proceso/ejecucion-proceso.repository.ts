@@ -31,4 +31,11 @@ export class EjecucionProcesoRepository {
       relations: ['proceso', 'statusProceso'],
     });
   }
+
+  async crear(datos: Partial<EjecucionProcesoEntity>): Promise<EjecucionProcesoEntity> {
+    const nueva = this.repositorio.create(datos);
+    const guardada = await this.repositorio.save(nueva);
+    const conRelaciones = await this.obtenerPorId(guardada.id);
+    return conRelaciones!;
+  }
 }

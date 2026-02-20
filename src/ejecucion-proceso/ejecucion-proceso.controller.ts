@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, Body } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -8,6 +8,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { EjecucionProcesoService } from './ejecucion-proceso.service';
+import { CrearEjecucionProcesoDto } from './dtos';
 import { EjecucionProcesoResponse } from './interfaces/ejecucion-proceso-response.interface';
 
 @ApiTags('Ejecuciones')
@@ -17,6 +18,19 @@ export class EjecucionProcesoController {
   constructor(
     private readonly ejecucionProcesoService: EjecucionProcesoService,
   ) {}
+
+  @Post()
+  @ApiOperation({
+    summary: 'Crear ejecucion',
+    description: 'Inicia una nueva ejecucion manual de un proceso ETL',
+  })
+  @ApiResponse({ status: 201, description: 'Ejecucion creada exitosamente' })
+  @ApiResponse({ status: 404, description: 'Proceso o estado inicial no encontrado' })
+  async crear(
+    @Body() dto: CrearEjecucionProcesoDto,
+  ): Promise<EjecucionProcesoResponse> {
+    return this.ejecucionProcesoService.crear(dto);
+  }
 
   @Get()
   @ApiOperation({
