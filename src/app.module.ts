@@ -33,6 +33,7 @@ import { ColumnaDestinoModule } from './columna-destino/columna-destino.module';
 import { FuenteDatosModule } from './fuente-datos/fuente-datos.module';
 import { ColumnaOrigenModule } from './columna-origen/columna-origen.module';
 import { ProcesoMapeoCampoModule } from './proceso-mapeo-campo/proceso-mapeo-campo.module';
+import { EjecucionProcesoModule } from './ejecucion-proceso/ejecucion-proceso.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { ProcesoMapeoCampoModule } from './proceso-mapeo-campo/proceso-mapeo-cam
     FuenteDatosModule,
     ColumnaOrigenModule,
     ProcesoMapeoCampoModule,
+    EjecucionProcesoModule,
   ],
   controllers: [],
   providers: [],
