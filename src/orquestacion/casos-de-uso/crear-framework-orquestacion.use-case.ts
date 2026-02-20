@@ -25,18 +25,11 @@ export class CrearFrameworkOrquestacionUseCase {
         //         'El nombre de la Step Function es requerido',
         //     );
         // }
-
-        const body = {
-            "p_ambiente": "dev",
-            "p_nombre_bucket": "bucket-olimpica-scantech-dev-smrplata",
-            "p_ruta_archivo": "/00-Configuracion",
-            "p_nombre_archivo": "configuration.cfg"
-        }
  
         try {
             const result = await this.awsService.startStepFunctionExecution(
                 dto.idWorkflowCloud,
-                body,
+                dto.body,
             );
             return {
                 message: 'Ejecución de Step Function iniciada',

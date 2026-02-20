@@ -36,10 +36,29 @@ export class CrearEjecucionUseCase {
         parametrosJson,
         proceso.organizacionId,
       );
+
+      const todosLosParametros = proceso.organizacionId
+        ? await this.parametrosGlobales.listarPorOrganizacion(proceso.organizacionId)
+        : [];
+
+      const parametrosGlobalesArray = todosLosParametros.map((p) => ({
+        ITEM_GRUPO: p.itemGrupo,
+        ITEM_ATRIBUTO: p.itemAtributo,
+        VALOR_RETORNAR: p.valorRetornar,
+      }));
+
+      parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
+      parametrosResueltos['p_organization_id'] = proceso.organizacionId;
+      parametrosResueltos['p_entidad'] = 'ventas';
+      parametrosResueltos['p_fecha_inicio'] = "2025-01-01 00:00:00",
+      parametrosResueltos['p_fecha_fin'] = "2026-02-28 23:59:59",
+      parametrosResueltos['id_local'] = 1
+
       console.log('parametros resueltos:', parametrosResueltos);
 
       const response = await this.crearFrameworkOrquestacionUseCase.execute({
-        idWorkflowCloud: proceso.idWorkflowCloud
+        idWorkflowCloud: proceso.idWorkflowCloud,
+        body: parametrosResueltos
       })
 
       console.log('response:', response)
