@@ -5,6 +5,7 @@ import { ProcesoService } from '../../proceso/proceso.service';
 import { CrearEjecucionProcesoDto } from '../dtos/crear-ejecucion-proceso.dto';
 import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-response.interface';
 import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
+import { CrearFrameworkOrquestacionUseCase } from 'src/orquestacion/casos-de-uso';
 
 @Injectable()
 export class CrearEjecucionUseCase {
@@ -12,6 +13,7 @@ export class CrearEjecucionUseCase {
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
     private readonly procesoService: ProcesoService,
+    private readonly crearFrameworkOrquestacionUseCase: CrearFrameworkOrquestacionUseCase
   ) {}
 
   async execute(dto: CrearEjecucionProcesoDto): Promise<EjecucionProcesoResponse> {
@@ -27,6 +29,9 @@ export class CrearEjecucionUseCase {
         );
       }
 
+      const response = await this.crearFrameworkOrquestacionUseCase.execute({stepFunctionName: ''})
+
+      console.log('response:', response)
       const ahora = new Date();
 
       const ejecucionCreada = await this.ejecucionProcesoRepository.crear({

@@ -13,6 +13,11 @@ import { AwsService } from "src/utils/aws.service";
         CrearMedallonOrquestacionUseCase,
         CrearPublicacionOrquestacionUseCase,
     ],
-    exports: [],
+    exports: [
+        AwsService,
+        CrearFrameworkOrquestacionUseCase,
+        CrearMedallonOrquestacionUseCase,
+        CrearPublicacionOrquestacionUseCase,
+    ],
 })
 export class OrquestacionModule { }

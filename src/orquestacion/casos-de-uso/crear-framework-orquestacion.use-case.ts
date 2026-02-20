@@ -10,7 +10,7 @@ export class CrearFrameworkOrquestacionUseCase {
         private readonly configService: ConfigService,
     ) {}
 
-    async execute(dto: CrearFrameworkOrquestacionDto) {
+    async execute(dto: any) {
         const region = this.configService.get<string>('AWS_REGION', 'us-east-2');
         const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
         
@@ -20,11 +20,11 @@ export class CrearFrameworkOrquestacionUseCase {
             );
         }
 
-        if (!dto.stepFunctionName) {
-            throw new BadRequestException(
-                'El nombre de la Step Function es requerido',
-            );
-        }
+        // if (!dto.stepFunctionName) {
+        //     throw new BadRequestException(
+        //         'El nombre de la Step Function es requerido',
+        //     );
+        // }
 
         // Construir el ARN de la Step Function
         // Formato: arn:aws:states:REGION:ACCOUNT_ID:stateMachine:NAME

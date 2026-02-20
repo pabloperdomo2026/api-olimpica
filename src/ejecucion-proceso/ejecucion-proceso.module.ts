@@ -8,12 +8,14 @@ import { ListarEjecucionesUseCase } from './casos-de-uso/listar-ejecuciones.use-
 import { CrearEjecucionUseCase } from './casos-de-uso/crear-ejecucion.use-case';
 import { EstadoProcesoModule } from '../status-proceso/estado-proceso.module';
 import { ProcesoModule } from '../proceso/proceso.module';
+import { OrquestacionModule } from 'src/orquestacion/orquestacion.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([EjecucionProcesoEntity]),
     EstadoProcesoModule,
     ProcesoModule,
+    OrquestacionModule
   ],
   controllers: [EjecucionProcesoController],
   providers: [
