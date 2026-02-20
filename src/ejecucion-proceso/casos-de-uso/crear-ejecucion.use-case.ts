@@ -6,12 +6,14 @@ import { CrearEjecucionProcesoDto } from '../dtos/crear-ejecucion-proceso.dto';
 import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-response.interface';
 import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
 import { CrearFrameworkOrquestacionUseCase } from 'src/orquestacion/casos-de-uso';
+import { ParametrosGlobalesRepository } from 'src/parametros-globales/parametros-globales.repository';
 
 @Injectable()
 export class CrearEjecucionUseCase {
   constructor(
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
+    private readonly parametrosGlobales: ParametrosGlobalesRepository,
     private readonly procesoService: ProcesoService,
     private readonly crearFrameworkOrquestacionUseCase: CrearFrameworkOrquestacionUseCase
   ) {}
@@ -29,7 +31,16 @@ export class CrearEjecucionUseCase {
         );
       }
 
-      const response = await this.crearFrameworkOrquestacionUseCase.execute({stepFunctionName: ''})
+      const parametrosJson = proceso.parametrosJson;
+      const parametrosResueltos = await this.resolverParametrosJson(
+        parametrosJson,
+        proceso.organizacionId,
+      );
+      console.log('parametros resueltos:', parametrosResueltos);
+
+      const response = await this.crearFrameworkOrquestacionUseCase.execute({
+        idWorkflowCloud: proceso.idWorkflowCloud
+      })
 
       console.log('response:', response)
       const ahora = new Date();
@@ -55,5 +66,60 @@ export class CrearEjecucionUseCase {
         error.status || 500,
       );
     }
+  }
+
+  private async resolverParametrosJson(
+    parametrosJson: string | undefined | null,
+    organizacionId: string | undefined,
+  ): Promise<Record<string, unknown>> {
+    if (!parametrosJson || !organizacionId) return {};
+
+    // Los placeholders ##...## pueden estar sin comillas en el JSON almacenado.
+    // Los envolvemos en comillas para que JSON.parse no falle.
+    const jsonSaneado = parametrosJson.replace(
+      /(?<!")(##[^#]+##)(?!")/g,
+      '"$1"',
+    );
+
+    let objeto: Record<string, unknown>;
+    try {
+      objeto = JSON.parse(jsonSaneado);
+    } catch {
+      console.warn('parametrosJson no es un JSON valido:', parametrosJson);
+      return {};
+    }
+
+    const resolverValor = async (valor: string): Promise<string> => {
+      const coincidencias = [...valor.matchAll(/##([^-#]+)-([^#]+)##/g)];
+      let resultado = valor;
+
+      for (const match of coincidencias) {
+        const [placeholder, itemGrupo, itemAtributo] = match;
+        const parametro = await this.parametrosGlobales.obtenerPorClave(
+          organizacionId,
+          itemGrupo,
+          itemAtributo,
+        );
+
+        if (parametro) {
+          resultado = resultado.replace(placeholder, parametro.valorRetornar);
+        } else {
+          console.warn(
+            `Parametro global no encontrado: grupo="${itemGrupo}" atributo="${itemAtributo}"`,
+          );
+        }
+      }
+
+      return resultado;
+    };
+
+    const objetoResuelto: Record<string, unknown> = {};
+
+    for (const [clave, valor] of Object.entries(objeto)) {
+      objetoResuelto[clave] =
+        typeof valor === 'string' ? await resolverValor(valor) : valor;
+    }
+
+    return objetoResuelto;
   }
 }

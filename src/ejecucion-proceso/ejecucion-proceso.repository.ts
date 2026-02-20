@@ -38,4 +38,10 @@ export class EjecucionProcesoRepository {
     const conRelaciones = await this.obtenerPorId(guardada.id);
     return conRelaciones!;
   }
+
+  async actualizar(id: string, datos: Partial<EjecucionProcesoEntity>): Promise<EjecucionProcesoEntity> {
+    await this.repositorio.update(id, datos);
+    const actualizado = await this.obtenerPorId(id);
+    return actualizado!;
+  }
 }

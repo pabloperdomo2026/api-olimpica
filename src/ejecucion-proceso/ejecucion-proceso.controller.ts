@@ -8,7 +8,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { EjecucionProcesoService } from './ejecucion-proceso.service';
-import { CrearEjecucionProcesoDto } from './dtos';
+import { CrearEjecucionProcesoDto, CrearEventoEjecucionDto } from './dtos';
 import { EjecucionProcesoResponse } from './interfaces/ejecucion-proceso-response.interface';
 
 @ApiTags('Ejecuciones')
@@ -30,6 +30,22 @@ export class EjecucionProcesoController {
     @Body() dto: CrearEjecucionProcesoDto,
   ): Promise<EjecucionProcesoResponse> {
     return this.ejecucionProcesoService.crear(dto);
+  }
+
+  @Post('eventos')
+  @ApiOperation({
+    summary: 'Registrar evento de ejecucion',
+    description:
+      'Recibe un evento de cambio de estado para una ejecucion en curso. ' +
+      'Usado por Step Functions o el proceso ETL para notificar avances, ' +
+      'finalizaciones o errores.',
+  })
+  @ApiResponse({ status: 201, description: 'Evento registrado y ejecucion actualizada' })
+  @ApiResponse({ status: 404, description: 'Ejecucion o estado no encontrado' })
+  async registrarEvento(
+    @Body() dto: any,
+  ): Promise<any> {
+    return this.ejecucionProcesoService.registrarEvento(dto);
   }
 
   @Get()

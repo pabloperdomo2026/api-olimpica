@@ -26,10 +26,6 @@ export class CrearFrameworkOrquestacionUseCase {
         //     );
         // }
 
-        // Construir el ARN de la Step Function
-        // Formato: arn:aws:states:REGION:ACCOUNT_ID:stateMachine:NAME
-        const stateMachineArn = 'arn:aws:states:us-east-2:315435444246:stateMachine:smr-sfn-desplegar-framework' // `arn:aws:states:${region}:${accountId}:stateMachine:${dto.stepFunctionName}`;
-
         const body = {
             "p_ambiente": "dev",
             "p_nombre_bucket": "bucket-olimpica-scantech-dev-smrplata",
@@ -39,14 +35,14 @@ export class CrearFrameworkOrquestacionUseCase {
  
         try {
             const result = await this.awsService.startStepFunctionExecution(
-                stateMachineArn,
+                dto.idWorkflowCloud,
                 body,
             );
             return {
                 message: 'Ejecución de Step Function iniciada',
                 executionArn: result.executionArn,
                 startDate: result.startDate,
-                stateMachineArn,
+                idWorkflowCloud: dto.idWorkflowCloud,
             };
         } catch (error) {
             const message =
