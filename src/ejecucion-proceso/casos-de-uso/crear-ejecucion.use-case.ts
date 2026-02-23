@@ -47,21 +47,6 @@ export class CrearEjecucionUseCase {
         VALOR_RETORNAR: p.valorRetornar,
       }));
 
-      parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
-      parametrosResueltos['p_organization_id'] = proceso.organizacionId;
-      parametrosResueltos['p_entidad'] = 'ventas';
-      parametrosResueltos['p_fecha_inicio'] = "2025-01-01 00:00:00",
-      parametrosResueltos['p_fecha_fin'] = "2026-02-28 23:59:59",
-      parametrosResueltos['id_local'] = 1
-
-      console.log('parametros resueltos:', parametrosResueltos);
-
-      const response = await this.crearFrameworkOrquestacionUseCase.execute({
-        idWorkflowCloud: proceso.idWorkflowCloud,
-        body: parametrosResueltos
-      })
-
-      console.log('response:', response)
       const ahora = new Date();
 
       const ejecucionCreada = await this.ejecucionProcesoRepository.crear({
@@ -75,6 +60,24 @@ export class CrearEjecucionUseCase {
         usuarioCreacion: dto.usuarioSolicita ?? 'sistema',
       });
 
+      parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
+      parametrosResueltos['p_organization_id'] = proceso.organizacionId;
+      parametrosResueltos['p_entidad'] = 'ventas';
+      parametrosResueltos['p_fecha_inicio'] = this.formatearFecha(new Date('2025-01-01')),
+      parametrosResueltos['p_fecha_fin'] = this.formatearFecha(new Date('2026-02-28T23:59:59')),
+      parametrosResueltos['id_local'] = 1
+      parametrosResueltos['p_proceso_ejecucion_id'] = ejecucionCreada.id
+
+      console.log('parametros resueltos:', parametrosResueltos);
+
+      const response = await this.crearFrameworkOrquestacionUseCase.execute({
+        idWorkflowCloud: proceso.idWorkflowCloud,
+        body: parametrosResueltos
+      })
+
+      console.log('response:', response)
+      
+
       return ejecucionProcesoMapper(ejecucionCreada);
     } catch (error) {
       throw new HttpException(
@@ -85,6 +88,16 @@ export class CrearEjecucionUseCase {
         error.status || 500,
       );
     }
+  }
+
+  private formatearFecha(fecha: Date): string {
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const hora = String(fecha.getHours()).padStart(2, '0');
+    const minuto = String(fecha.getMinutes()).padStart(2, '0');
+    const segundo = String(fecha.getSeconds()).padStart(2, '0');
+    return `${anio}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
   }
 
   private async resolverParametrosJson(
