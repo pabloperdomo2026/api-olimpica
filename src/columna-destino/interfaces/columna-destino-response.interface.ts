@@ -1,5 +1,6 @@
 export interface ColumnaDestinoResponse {
   id: string;
+  tablaNombre?: string;
   nombreColumna: string;
   destinoId: string;
   tipoDatoId: string;

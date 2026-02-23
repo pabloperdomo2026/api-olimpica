@@ -7,6 +7,7 @@ export const listarColumnasDestinoMapper = (items: ColumnaDestinoEntity[]): Colu
 
 export const columnaDestinoMapper = (i: ColumnaDestinoEntity): ColumnaDestinoResponse => ({
   id: i.id,
+  tablaNombre: i.tablaNombre || undefined,
   nombreColumna: i.nombreColumna,
   destinoId: i.destinoId,
   tipoDatoId: i.tipoDatoId,

@@ -3,6 +3,11 @@ import { IsString, IsOptional, IsUUID, IsBoolean, IsInt, Min } from 'class-valid
 import { Type } from 'class-transformer';
 
 export class ActualizarColumnaDestinoDto {
+  @ApiProperty({ example: 'smr_ventas', description: 'Nombre de la tabla destino', required: false })
+  @IsString()
+  @IsOptional()
+  tablaNombre?: string;
+
   @ApiProperty({ example: 'precio_total', description: 'Nombre de la columna destino', required: false })
   @IsString()
   @IsOptional()

@@ -15,6 +15,9 @@ export class ColumnaDestinoEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'tabla_nombre', type: 'varchar', length: 200, default: null })
+  tablaNombre: string;
+
   @Column({ name: 'nombre_columna', type: 'varchar', length: 200 })
   nombreColumna: string;
 

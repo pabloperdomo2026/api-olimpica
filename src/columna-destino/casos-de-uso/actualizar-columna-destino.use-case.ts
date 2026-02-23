@@ -14,6 +14,7 @@ export class ActualizarColumnaDestinoUseCase {
       if (!existente) throw new NotFoundException(`Columna destino con ID ${id} no encontrada`);
 
       const datosActualizar: Record<string, unknown> = {};
+      if (dto.tablaNombre !== undefined) datosActualizar.tablaNombre = dto.tablaNombre;
       if (dto.nombreColumna !== undefined) datosActualizar.nombreColumna = dto.nombreColumna;
       if (dto.tipoDatoId !== undefined) datosActualizar.tipoDatoId = dto.tipoDatoId;
       if (dto.posicionOrdinal !== undefined) datosActualizar.posicionOrdinal = dto.posicionOrdinal;

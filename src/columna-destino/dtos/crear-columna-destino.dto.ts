@@ -3,6 +3,11 @@ import { IsString, IsNotEmpty, IsOptional, IsUUID, IsBoolean, IsNumber, IsInt, M
 import { Type } from 'class-transformer';
 
 export class CrearColumnaDestinoDto {
+  @ApiProperty({ example: 'smr_ventas', description: 'Nombre de la tabla destino', required: false })
+  @IsString()
+  @IsOptional()
+  tablaNombre?: string;
+
   @ApiProperty({ example: 'precio_unitario', description: 'Nombre de la columna destino' })
   @IsString()
   @IsNotEmpty()

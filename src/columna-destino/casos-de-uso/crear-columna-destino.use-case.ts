@@ -11,6 +11,7 @@ export class CrearColumnaDestinoUseCase {
   async execute(dto: CrearColumnaDestinoDto): Promise<ColumnaDestinoResponse> {
     try {
       const creado = await this.repository.crear({
+        tablaNombre: dto.tablaNombre || undefined,
         nombreColumna: dto.nombreColumna,
         destinoId: dto.destinoId,
         tipoDatoId: dto.tipoDatoId,
