@@ -4,6 +4,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ProgramacionEntity } from './programacion.entity';
 import { ProgramacionRepository } from './programacion.repository';
 import { ProgramacionService } from './programacion.service';
+import { ProgramacionCrudService } from './programacion-crud.service';
+import { ProgramacionController } from './programacion.controller';
+import { ListarProgramacionesUseCase } from './casos-de-uso/listar-programaciones.use-case';
+import { CrearProgramacionUseCase } from './casos-de-uso/crear-programacion.use-case';
+import { ActualizarProgramacionUseCase } from './casos-de-uso/actualizar-programacion.use-case';
+import { EliminarProgramacionUseCase } from './casos-de-uso/eliminar-programacion.use-case';
 import { EjecucionProcesoModule } from '../ejecucion-proceso/ejecucion-proceso.module';
 
 @Module({
@@ -12,6 +18,15 @@ import { EjecucionProcesoModule } from '../ejecucion-proceso/ejecucion-proceso.m
     TypeOrmModule.forFeature([ProgramacionEntity]),
     EjecucionProcesoModule,
   ],
-  providers: [ProgramacionRepository, ProgramacionService],
+  controllers: [ProgramacionController],
+  providers: [
+    ProgramacionRepository,
+    ProgramacionService,
+    ProgramacionCrudService,
+    ListarProgramacionesUseCase,
+    CrearProgramacionUseCase,
+    ActualizarProgramacionUseCase,
+    EliminarProgramacionUseCase,
+  ],
 })
 export class ProgramacionModule {}
