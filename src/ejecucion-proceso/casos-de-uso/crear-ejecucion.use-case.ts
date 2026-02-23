@@ -63,7 +63,7 @@ export class CrearEjecucionUseCase {
       parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
       parametrosResueltos['p_organization_id'] = proceso.organizacionId;
       parametrosResueltos['p_entidad'] = 'ventas';
-      parametrosResueltos['p_fecha_inicio'] = this.formatearFecha(new Date('2025-01-01')),
+      parametrosResueltos['p_fecha_inicio'] = this.formatearFecha(new Date()),
       parametrosResueltos['p_fecha_fin'] = this.formatearFecha(new Date('2026-02-28T23:59:59')),
       parametrosResueltos['id_local'] = 1
       parametrosResueltos['p_proceso_ejecucion_id'] = ejecucionCreada.id
