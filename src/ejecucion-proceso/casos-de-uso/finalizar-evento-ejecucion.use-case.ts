@@ -12,7 +12,7 @@ export class FinalizarEventoEjecucionUseCase {
   async execute(dto: any): Promise<any> {
     try {
       const { datos } = dto;
-      const ejecucionProcesoId = datos.p_ejecucion_proceso_id;
+      const ejecucionProcesoId = datos.p_proceso_ejecucion_id;
       const estadoCodigo = datos.p_estado;
 
       const ejecucion = await this.ejecucionProcesoRepository.obtenerPorId(ejecucionProcesoId);
