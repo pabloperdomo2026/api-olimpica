@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ListarEjecucionesUseCase } from './casos-de-uso/listar-ejecuciones.use-case';
 import { CrearEjecucionUseCase } from './casos-de-uso/crear-ejecucion.use-case';
 import { CrearEventoEjecucionUseCase } from './casos-de-uso/crear-evento-ejecucion.use-case';
+import { FinalizarEventoEjecucionUseCase } from './casos-de-uso/finalizar-evento-ejecucion.use-case';
 import { CrearEjecucionProcesoDto, CrearEventoEjecucionDto } from './dtos';
 import { EjecucionProcesoResponse } from './interfaces/ejecucion-proceso-response.interface';
 
@@ -11,6 +12,7 @@ export class EjecucionProcesoService {
     private readonly listarEjecucionesUseCase: ListarEjecucionesUseCase,
     private readonly crearEjecucionUseCase: CrearEjecucionUseCase,
     private readonly crearEventoEjecucionUseCase: CrearEventoEjecucionUseCase,
+    private readonly finalizarEventoEjecucionUseCase: FinalizarEventoEjecucionUseCase,
   ) {}
 
   async listarTodos(procesoId?: string): Promise<EjecucionProcesoResponse[]> {
@@ -27,5 +29,9 @@ export class EjecucionProcesoService {
 
   async registrarEvento(dto: CrearEventoEjecucionDto): Promise<EjecucionProcesoResponse> {
     return this.crearEventoEjecucionUseCase.execute(dto);
+  }
+
+  async finalizarEvento(dto: any): Promise<any> {
+    return this.finalizarEventoEjecucionUseCase.execute(dto);
   }
 }

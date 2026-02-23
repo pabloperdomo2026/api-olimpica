@@ -1,19 +1,15 @@
-import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import { EjecucionProcesoRepository } from '../ejecucion-proceso.repository';
-import { EstadoProcesoRepository } from '../../status-proceso/estado-proceso.repository';
-import { CrearEventoEjecucionDto } from '../dtos/crear-evento-ejecucion.dto';
-import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-response.interface';
-import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
-import { EjecucionProcesoEntity } from '../ejecucion-proceso.entity';
+import { EstadoProcesoRepository } from 'src/status-proceso/estado-proceso.repository';
 
 @Injectable()
-export class CrearEventoEjecucionUseCase {
+export class FinalizarEventoEjecucionUseCase {
   constructor(
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
   ) {}
 
-  async execute(dto: any): Promise<EjecucionProcesoResponse> {
+  async execute(dto: any): Promise<any> {
     try {
       const { datos } = dto;
       const ejecucionProcesoId = datos.p_ejecucion_proceso_id;
@@ -40,12 +36,13 @@ export class CrearEventoEjecucionUseCase {
         duracionSegundos,
       });
 
-      return ejecucionProcesoMapper(actualizada);
+      console.log('[FinalizarEventoEjecucion] payload recibido:', JSON.stringify(dto, null, 2));
+      return { status: 'Success' };
     } catch (error) {
       throw new HttpException(
         {
-          description: 'Error al registrar el evento de ejecucion',
-          errorMessage: error.response ?? error.message,
+          description: 'Error al finalizar el evento de ejecucion',
+          errorMessage: error.message,
         },
         error.status || 500,
       );

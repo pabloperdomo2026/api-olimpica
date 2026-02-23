@@ -7,6 +7,7 @@ import { EjecucionProcesoEntity } from './ejecucion-proceso.entity';
 import { ListarEjecucionesUseCase } from './casos-de-uso/listar-ejecuciones.use-case';
 import { CrearEjecucionUseCase } from './casos-de-uso/crear-ejecucion.use-case';
 import { CrearEventoEjecucionUseCase } from './casos-de-uso/crear-evento-ejecucion.use-case';
+import { FinalizarEventoEjecucionUseCase } from './casos-de-uso/finalizar-evento-ejecucion.use-case';
 import { EstadoProcesoModule } from '../status-proceso/estado-proceso.module';
 import { ProcesoModule } from '../proceso/proceso.module';
 import { OrquestacionModule } from 'src/orquestacion/orquestacion.module';
@@ -33,6 +34,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
     ListarEjecucionesUseCase,
     CrearEjecucionUseCase,
     CrearEventoEjecucionUseCase,
+    FinalizarEventoEjecucionUseCase,
   ],
   exports: [EjecucionProcesoService],
 })

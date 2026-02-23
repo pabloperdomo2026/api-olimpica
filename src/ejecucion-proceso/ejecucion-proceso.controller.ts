@@ -48,6 +48,16 @@ export class EjecucionProcesoController {
     return this.ejecucionProcesoService.registrarEvento(dto);
   }
 
+  @Post('finalizar')
+  @ApiOperation({
+    summary: 'Finalizar evento de ejecucion',
+    description: 'Recibe la señal de finalizacion de una ejecucion en curso.',
+  })
+  @ApiResponse({ status: 201, description: 'Evento de finalizacion registrado' })
+  async finalizarEvento(@Body() dto: any): Promise<any> {
+    return this.ejecucionProcesoService.finalizarEvento(dto);
+  }
+
   @Get()
   @ApiOperation({
     summary: 'Listar ejecuciones',
