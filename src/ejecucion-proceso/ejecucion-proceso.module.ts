@@ -12,19 +12,24 @@ import { ProcesoModule } from '../proceso/proceso.module';
 import { OrquestacionModule } from 'src/orquestacion/orquestacion.module';
 import { ParametrosGlobalesEntity } from 'src/parametros-globales/parametros-globales.entity';
 import { ParametrosGlobalesRepository } from 'src/parametros-globales/parametros-globales.repository';
+import { OrganizacionRepository } from 'src/organizacion/organizacion.repository';
+import { OrganizacionEntity } from 'src/organizacion/organizacion.entity';
+import { OrganizacionModule } from 'src/organizacion/organizacion.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EjecucionProcesoEntity, ParametrosGlobalesEntity]),
+    TypeOrmModule.forFeature([EjecucionProcesoEntity, ParametrosGlobalesEntity, OrganizacionEntity]),
     EstadoProcesoModule,
     ProcesoModule,
     OrquestacionModule,
+    OrganizacionModule
   ],
   controllers: [EjecucionProcesoController],
   providers: [
     EjecucionProcesoService,
     EjecucionProcesoRepository,
     ParametrosGlobalesRepository,
+    OrganizacionRepository,
     ListarEjecucionesUseCase,
     CrearEjecucionUseCase,
     CrearEventoEjecucionUseCase,

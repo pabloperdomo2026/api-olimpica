@@ -7,11 +7,13 @@ import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-respon
 import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
 import { CrearFrameworkOrquestacionUseCase } from 'src/orquestacion/casos-de-uso';
 import { ParametrosGlobalesRepository } from 'src/parametros-globales/parametros-globales.repository';
+import { OrganizacionRepository } from 'src/organizacion/organizacion.repository';
 
 @Injectable()
 export class CrearEjecucionUseCase {
   constructor(
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
+    private readonly organizacionRepository: OrganizacionRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
     private readonly parametrosGlobales: ParametrosGlobalesRepository,
     private readonly procesoService: ProcesoService,
@@ -21,6 +23,7 @@ export class CrearEjecucionUseCase {
   async execute(dto: CrearEjecucionProcesoDto): Promise<EjecucionProcesoResponse> {
     try {
       const proceso = await this.procesoService.obtenerPorId(dto.procesoId);
+      const organizacion = await this.organizacionRepository.obtenerPorId(proceso.organizacionId);
 
       const estados = await this.estadoProcesoRepository.listarTodos();
       const estadoInicial = estados.find((e) => e.esInicial);
@@ -61,7 +64,8 @@ export class CrearEjecucionUseCase {
       });
 
       parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
-      parametrosResueltos['p_organization_id'] = proceso.organizacionId;
+      parametrosResueltos['p_organizacion_id'] = proceso.organizacionId;
+      parametrosResueltos['p_organizacion_codigo'] = organizacion?.codigoOrg;
       parametrosResueltos['p_entidad'] = 'ventas';
       parametrosResueltos['p_fecha_inicio'] = this.formatearFecha(new Date()),
       parametrosResueltos['p_fecha_fin'] = this.formatearFecha(new Date('2026-02-28T23:59:59')),

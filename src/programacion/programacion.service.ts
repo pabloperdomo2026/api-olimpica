@@ -53,6 +53,29 @@ export class ProgramacionService implements OnModuleInit {
     this.logger.log(`${registradas} de ${programaciones.length} programacion(es) registradas`);
   }
 
+  sincronizarJob(id: string, nombre: string, expresionCron: string | null, activo: string, procesoId: string): void {
+    const nombreJob = `job_${id}`;
+    const estaActivo = activo === 'S';
+
+    if (!estaActivo || !expresionCron) {
+      if (this.schedulerRegistry.doesExist('cron', nombreJob)) {
+        this.schedulerRegistry.deleteCronJob(nombreJob);
+        this.logger.log(`Job eliminado por inactividad o sin cron: "${nombre}"`);
+      }
+      return;
+    }
+
+    this.registrarJob(id, nombre, expresionCron, procesoId);
+  }
+
+  eliminarJob(id: string): void {
+    const nombreJob = `job_${id}`;
+    if (this.schedulerRegistry.doesExist('cron', nombreJob)) {
+      this.schedulerRegistry.deleteCronJob(nombreJob);
+      this.logger.log(`Job eliminado: ${nombreJob}`);
+    }
+  }
+
   private normalizarExpresionCron(expresion: string): string {
     // La libreria cron v4 requiere 6 campos: segundo minuto hora dia mes semana
     // Si la expresion tiene solo 5 campos (estandar unix), se agrega '0' al inicio

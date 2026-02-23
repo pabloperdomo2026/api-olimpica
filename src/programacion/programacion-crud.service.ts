@@ -5,6 +5,7 @@ import { ActualizarProgramacionUseCase } from './casos-de-uso/actualizar-program
 import { EliminarProgramacionUseCase, EliminarProgramacionResponse } from './casos-de-uso/eliminar-programacion.use-case';
 import { CrearProgramacionDto, ActualizarProgramacionDto } from './dtos';
 import { ProgramacionResponse } from './interfaces/programacion-response.interface';
+import { ProgramacionService } from './programacion.service';
 
 @Injectable()
 export class ProgramacionCrudService {
@@ -13,6 +14,7 @@ export class ProgramacionCrudService {
     private readonly crearUseCase: CrearProgramacionUseCase,
     private readonly actualizarUseCase: ActualizarProgramacionUseCase,
     private readonly eliminarUseCase: EliminarProgramacionUseCase,
+    private readonly programacionService: ProgramacionService,
   ) {}
 
   async listarTodos(): Promise<ProgramacionResponse[]> {
@@ -24,14 +26,36 @@ export class ProgramacionCrudService {
   }
 
   async crear(dto: CrearProgramacionDto): Promise<ProgramacionResponse> {
-    return this.crearUseCase.execute(dto);
+    const resultado = await this.crearUseCase.execute(dto);
+    if (resultado.proceso) {
+      this.programacionService.sincronizarJob(
+        resultado.id,
+        resultado.nombre,
+        resultado.expresionCron,
+        resultado.activo,
+        resultado.proceso.id,
+      );
+    }
+    return resultado;
   }
 
   async actualizar(id: string, dto: ActualizarProgramacionDto): Promise<ProgramacionResponse> {
-    return this.actualizarUseCase.execute(id, dto);
+    const resultado = await this.actualizarUseCase.execute(id, dto);
+    if (resultado.proceso) {
+      this.programacionService.sincronizarJob(
+        resultado.id,
+        resultado.nombre,
+        resultado.expresionCron,
+        resultado.activo,
+        resultado.proceso.id,
+      );
+    }
+    return resultado;
   }
 
   async eliminar(id: string): Promise<EliminarProgramacionResponse> {
-    return this.eliminarUseCase.execute(id);
+    const resultado = await this.eliminarUseCase.execute(id);
+    this.programacionService.eliminarJob(id);
+    return resultado;
   }
 }
