@@ -15,7 +15,11 @@ export class ProgramacionService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    await this.cargarProgramaciones();
+    try {
+      await this.cargarProgramaciones();
+    } catch (error) {
+      this.logger.error(`Error al cargar programaciones al inicio: ${error.message}`);
+    }
   }
 
   async cargarProgramaciones(): Promise<void> {
@@ -84,10 +88,9 @@ export class ProgramacionService implements OnModuleInit {
           });
           this.logger.log(`Job "${nombre}" ejecutado correctamente`);
         } catch (error) {
-          console.log('-----', error)
           this.logger.error(`Error al ejecutar job "${nombre}": ${error.message}`);
         }
-      });
+      }, null, false, process.env.TZ || 'America/Bogota');
 
       this.schedulerRegistry.addCronJob(nombreJob, job);
       job.start();
