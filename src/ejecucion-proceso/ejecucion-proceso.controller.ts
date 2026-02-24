@@ -10,6 +10,7 @@ import {
 import { EjecucionProcesoService } from './ejecucion-proceso.service';
 import { CrearEjecucionProcesoDto, CrearEventoEjecucionDto } from './dtos';
 import { EjecucionProcesoResponse } from './interfaces/ejecucion-proceso-response.interface';
+import { DashboardResponse } from './interfaces/dashboard-response.interface';
 
 @ApiTags('Ejecuciones')
 @ApiBearerAuth()
@@ -73,6 +74,16 @@ export class EjecucionProcesoController {
     @Query('procesoId') procesoId?: string,
   ): Promise<EjecucionProcesoResponse[]> {
     return this.ejecucionProcesoService.listarTodos(procesoId);
+  }
+
+  @Get('dashboard')
+  @ApiOperation({
+    summary: 'Obtener datos del dashboard',
+    description: 'Retorna KPIs, ejecuciones por hora, ultimas ejecuciones y procesos con fallas del dia actual',
+  })
+  @ApiResponse({ status: 200, description: 'Datos del dashboard obtenidos exitosamente' })
+  async obtenerDashboard(): Promise<DashboardResponse> {
+    return this.ejecucionProcesoService.obtenerDashboard();
   }
 
   @Get(':id')

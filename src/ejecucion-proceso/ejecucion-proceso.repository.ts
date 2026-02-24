@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { EjecucionProcesoEntity } from './ejecucion-proceso.entity';
 
 @Injectable()
@@ -12,6 +12,16 @@ export class EjecucionProcesoRepository {
 
   async listarTodos(): Promise<EjecucionProcesoEntity[]> {
     return this.repositorio.find({
+      relations: ['proceso', 'statusProceso'],
+      order: { fechaHoraInicio: 'DESC' },
+    });
+  }
+
+  async listarHoy(): Promise<EjecucionProcesoEntity[]> {
+    const inicioDia = new Date();
+    inicioDia.setHours(0, 0, 0, 0);
+    return this.repositorio.find({
+      where: { fechaHoraInicio: MoreThanOrEqual(inicioDia) },
       relations: ['proceso', 'statusProceso'],
       order: { fechaHoraInicio: 'DESC' },
     });
