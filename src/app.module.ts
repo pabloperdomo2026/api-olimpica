@@ -35,6 +35,8 @@ import { ColumnaOrigenModule } from './columna-origen/columna-origen.module';
 import { ProcesoMapeoCampoModule } from './proceso-mapeo-campo/proceso-mapeo-campo.module';
 import { EjecucionProcesoModule } from './ejecucion-proceso/ejecucion-proceso.module';
 import { ProgramacionModule } from './programacion/programacion.module';
+import { RecipienteCorreoModule } from './recipiente-correo/recipiente-correo.module';
+import { ConfiguracionAlertaModule } from './configuracion-alerta/configuracion-alerta.module';
 
 @Module({
   imports: [
@@ -77,6 +79,8 @@ import { ProgramacionModule } from './programacion/programacion.module';
     ProcesoMapeoCampoModule,
     EjecucionProcesoModule,
     ProgramacionModule,
+    RecipienteCorreoModule,
+    ConfiguracionAlertaModule,
   ],
   controllers: [],
   providers: [],
