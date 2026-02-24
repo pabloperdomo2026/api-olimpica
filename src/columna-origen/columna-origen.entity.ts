@@ -25,6 +25,9 @@ export class ColumnaOrigenEntity {
   @Column({ name: 'nombre_columna', type: 'varchar', length: 200 })
   nombreColumna: string;
 
+  @Column({ name: 'nombre_tabla', type: 'varchar', length: 200, default: null })
+  nombreTabla: string;
+
   @Column({ name: 'posicion_ordinal', type: 'numeric', nullable: true })
   posicionOrdinal: number;
 

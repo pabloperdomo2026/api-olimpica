@@ -2,6 +2,7 @@ export interface ColumnaOrigenResponse {
   id: string;
   fuenteId: string;
   tipoDatoId: string;
+  tablaNombre?: string;
   nombreColumna: string;
   posicionOrdinal: number | null;
   esNullable: boolean;

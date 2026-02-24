@@ -19,6 +19,7 @@ export class ActualizarColumnaOrigenUseCase {
       }
 
       const datosActualizar: Record<string, unknown> = {};
+      if (dto.tablaNombre !== undefined) datosActualizar.nombreTabla = dto.tablaNombre;
       if (dto.nombreColumna !== undefined) datosActualizar.nombreColumna = dto.nombreColumna;
       if (dto.tipoDatoId !== undefined) datosActualizar.tipoDatoId = dto.tipoDatoId;
       if (dto.posicionOrdinal !== undefined) datosActualizar.posicionOrdinal = dto.posicionOrdinal;

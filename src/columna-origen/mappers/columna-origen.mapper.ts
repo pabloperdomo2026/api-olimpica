@@ -6,6 +6,7 @@ export function columnaOrigenMapper(instancia: ColumnaOrigenEntity): ColumnaOrig
     id: instancia.id,
     fuenteId: instancia.fuenteId,
     tipoDatoId: instancia.tipoDatoId,
+    tablaNombre: instancia.nombreTabla || undefined,
     nombreColumna: instancia.nombreColumna,
     posicionOrdinal: instancia.posicionOrdinal != null ? Number(instancia.posicionOrdinal) : null,
     esNullable: instancia.esNullable,

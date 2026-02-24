@@ -11,6 +11,7 @@ export class CrearColumnaOrigenUseCase {
   async execute(dto: CrearColumnaOrigenDto): Promise<ColumnaOrigenResponse> {
     try {
       const creado = await this.repository.crear({
+        nombreTabla: dto.tablaNombre || undefined,
         nombreColumna: dto.nombreColumna,
         fuenteId: dto.fuenteId,
         tipoDatoId: dto.tipoDatoId,

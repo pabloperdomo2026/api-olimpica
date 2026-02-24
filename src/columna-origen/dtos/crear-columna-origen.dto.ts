@@ -3,6 +3,12 @@ import { IsNotEmpty, IsString, IsUUID, IsOptional, IsInt, IsBoolean, MaxLength, 
 import { Type } from 'class-transformer';
 
 export class CrearColumnaOrigenDto {
+  @ApiPropertyOptional({ description: 'Nombre de la tabla en la fuente', maxLength: 200 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  tablaNombre?: string;
+
   @ApiProperty({ description: 'Nombre de la columna en la fuente', maxLength: 200 })
   @IsNotEmpty()
   @IsString()

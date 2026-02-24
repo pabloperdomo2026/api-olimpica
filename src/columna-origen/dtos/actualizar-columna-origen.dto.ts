@@ -3,6 +3,12 @@ import { IsString, IsUUID, IsOptional, IsInt, IsBoolean, MaxLength, Min } from '
 import { Type } from 'class-transformer';
 
 export class ActualizarColumnaOrigenDto {
+  @ApiPropertyOptional({ description: 'Nombre de la tabla en la fuente', maxLength: 200 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  tablaNombre?: string;
+
   @ApiPropertyOptional({ description: 'Nombre de la columna en la fuente', maxLength: 200 })
   @IsOptional()
   @IsString()
