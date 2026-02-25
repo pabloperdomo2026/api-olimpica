@@ -37,6 +37,7 @@ import { EjecucionProcesoModule } from './ejecucion-proceso/ejecucion-proceso.mo
 import { ProgramacionModule } from './programacion/programacion.module';
 import { RecipienteCorreoModule } from './recipiente-correo/recipiente-correo.module';
 import { ConfiguracionAlertaModule } from './configuracion-alerta/configuracion-alerta.module';
+import { ConfiguracionSlaModule } from './configuracion-sla/configuracion-sla.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { ConfiguracionAlertaModule } from './configuracion-alerta/configuracion-
     ProgramacionModule,
     RecipienteCorreoModule,
     ConfiguracionAlertaModule,
+    ConfiguracionSlaModule,
   ],
   controllers: [],
   providers: [],
