@@ -38,6 +38,7 @@ import { ProgramacionModule } from './programacion/programacion.module';
 import { RecipienteCorreoModule } from './recipiente-correo/recipiente-correo.module';
 import { ConfiguracionAlertaModule } from './configuracion-alerta/configuracion-alerta.module';
 import { ConfiguracionSlaModule } from './configuracion-sla/configuracion-sla.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { ConfiguracionSlaModule } from './configuracion-sla/configuracion-sla.mo
     RecipienteCorreoModule,
     ConfiguracionAlertaModule,
     ConfiguracionSlaModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],
