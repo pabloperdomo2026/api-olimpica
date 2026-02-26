@@ -4,7 +4,7 @@ import {
   Column,
 } from 'typeorm';
 
-@Entity('smr_dm_dim_fecha')
+@Entity('smr_dim_fecha')
 export class DmDimFechaEntity {
   @PrimaryColumn({ name: 'fecha_key', type: 'numeric' })
   fechaKey: number;

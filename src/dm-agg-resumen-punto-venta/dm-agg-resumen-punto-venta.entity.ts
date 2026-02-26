@@ -1,11 +1,18 @@
+import { OrganizacionEntity } from 'src/organizacion/organizacion.entity';
 import {
   Entity,
   PrimaryColumn,
   Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
-@Entity('smr_dm_agg_resumen_punto_venta')
+@Entity('smr_agg_resumen_punto_venta')
 export class DmAggResumenPuntoVentaEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @PrimaryColumn({ name: 'fecha_key', type: 'numeric' })
   fechaKey: number;
 
@@ -45,6 +52,13 @@ export class DmAggResumenPuntoVentaEntity {
   @Column({ name: 'fecha_actualizacion', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   fechaActualizacion: Date;
 
-  @Column({ name: 'organizacion_id', type: 'bigint' })
+  @Column({ name: 'organizacion_id', type: 'uuid', nullable: true, default: null })
   organizacionId: number;
+
+  @ManyToOne(() => OrganizacionEntity, (organizacion) => organizacion.resumenes, {
+    nullable: true,
+    onDelete: 'SET NULL'
+  })
+  @JoinColumn({ name: 'organizacion_id', })
+  organizacion: OrganizacionEntity;
 }

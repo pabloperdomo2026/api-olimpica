@@ -1,3 +1,4 @@
+import { DmAggResumenPuntoVentaEntity } from 'src/dm-agg-resumen-punto-venta/dm-agg-resumen-punto-venta.entity';
 import { UsuarioEntity } from 'src/usuario/usuario.entity';
 import {
     Entity,
@@ -60,4 +61,7 @@ import {
 
     @OneToMany(() => UsuarioEntity, (usuario) => usuario.organizacion)
     usuarios: UsuarioEntity
+
+    @OneToMany(() => DmAggResumenPuntoVentaEntity, (resumen) => resumen.organizacion)
+    resumenes: DmAggResumenPuntoVentaEntity
   }

@@ -17,16 +17,16 @@ export class DashboardScheduler implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     try {
-      const rutaSql = join(process.cwd(), 'scripts', 'smr_dashboard_refresh.sql');
+      const rutaSql = join(process.cwd(), 'scripts', 'datos_modelo_estrella.sql');
       const ddl = await readFile(rutaSql, 'utf-8');
       await this.dataSource.query(ddl);
-      this.logger.log('Funcion smr_dashboard_refresh registrada en la base de datos');
+      this.logger.log('Funcion datos_modelo_estrella.sql registrada en la base de datos');
     } catch (error) {
-      this.logger.error(`Error al registrar smr_dashboard_refresh: ${error.message}`);
+      this.logger.error(`Error al registrar datos_modelo_estrella.sql: ${error.message}`);
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async verificarParametroDashboard(): Promise<void> {
     const todos = await this.parametrosRepo.listarTodos();
     const param = todos.find(
@@ -40,7 +40,7 @@ export class DashboardScheduler implements OnModuleInit {
 
       try {
         const resultado = await this.dataSource.query(
-          'SELECT smr_dashboard_refresh() AS resumen',
+          'SELECT datos_modelo_estrella() AS resumen',
         );
         this.logger.log(`[DASHBOARD][REFRESH] ${resultado[0]?.resumen}`);
       } catch (error) {
