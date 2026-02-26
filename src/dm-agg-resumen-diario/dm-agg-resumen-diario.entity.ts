@@ -4,7 +4,7 @@ import {
   Column,
 } from 'typeorm';
 
-@Entity('smr_dm_agg_resumen_diario')
+@Entity('smr_agg_resumen_diario')
 export class DmAggResumenDiarioEntity {
   @PrimaryColumn({ name: 'fecha_key', type: 'numeric' })
   fechaKey: number;

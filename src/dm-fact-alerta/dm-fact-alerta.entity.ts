@@ -4,7 +4,7 @@ import {
   Column,
 } from 'typeorm';
 
-@Entity('smr_dm_fact_alerta')
+@Entity('smr_fact_alerta')
 export class DmFactAlertaEntity {
   @PrimaryColumn({ name: 'alerta_id', type: 'numeric' })
   alertaId: number;

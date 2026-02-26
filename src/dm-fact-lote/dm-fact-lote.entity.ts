@@ -4,7 +4,7 @@ import {
   Column,
 } from 'typeorm';
 
-@Entity('smr_dm_fact_lote')
+@Entity('smr_fact_lote')
 export class DmFactLoteEntity {
   @PrimaryColumn({ name: 'lote_id', type: 'numeric' })
   loteId: number;
