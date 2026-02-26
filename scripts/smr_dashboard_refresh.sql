@@ -174,6 +174,49 @@ BEGIN
 
   GET DIAGNOSTICS v_filas_tiempo = ROW_COUNT;
 
+  -- =============================================================================
+  -- 3. smr_dim_status  — Desde smr_status_proceso
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_status (
+      status_key, status_id, codigo_status, nombre_status,
+      categoria_status, es_final, es_exitoso, es_error,
+      permite_reintento, orden_visualizacion, color_hex,
+      organizacion_id
+  )
+  SELECT
+      ROW_NUMBER() OVER (ORDER BY sp.codigo)                                     AS status_key,
+      ROW_NUMBER() OVER (ORDER BY sp.codigo)                                     AS status_id,
+      sp.codigo,
+      sp.nombre,
+      CASE sp.codigo
+          WHEN 'TERMINADO'   THEN 'EXITOSO'
+          WHEN 'FALLIDO'     THEN 'ERROR'
+          WHEN 'CANCELADO'   THEN 'CANCELADO'
+          WHEN 'EN_PROCESO'  THEN 'EN_CURSO'
+          WHEN 'PENDIENTE'   THEN 'EN_CURSO'
+          WHEN 'EN_PAUSA'    THEN 'EN_CURSO'
+          ELSE 'OTRO'
+      END                                                                         AS categoria_status,
+      CASE WHEN sp.es_final   THEN 1 ELSE 0 END                                  AS es_final,
+      CASE WHEN sp.es_exitoso THEN 1 ELSE 0 END                                  AS es_exitoso,
+      CASE WHEN sp.es_error   THEN 1 ELSE 0 END                                  AS es_error,
+      CASE WHEN sp.es_error   THEN 1 ELSE 0 END                                  AS permite_reintento,
+      ROW_NUMBER() OVER (ORDER BY sp.codigo)                                     AS orden_visualizacion,
+      CASE sp.codigo
+          WHEN 'TERMINADO'   THEN '#28a745'
+          WHEN 'FALLIDO'     THEN '#dc3545'
+          WHEN 'EN_PROCESO'  THEN '#007bff'
+          WHEN 'CANCELADO'   THEN '#6c757d'
+          WHEN 'PENDIENTE'   THEN '#ffc107'
+          WHEN 'EN_PAUSA'    THEN '#fd7e14'
+          ELSE '#17a2b8'
+      END                                                                         AS color_hex,
+      1                                                                           AS organizacion_id
+  FROM smr_status_proceso sp
+  WHERE sp.activo = 'S'
+  ORDER BY sp.codigo;
+
+
   v_resumen := FORMAT(
     '[%s] Modelo estrella cargado: smr_dim_fecha=%s filas | smr_dim_tiempo=%s filas',
     TO_CHAR(NOW(), 'DD/MM/YYYY HH24:MI:SS'),
