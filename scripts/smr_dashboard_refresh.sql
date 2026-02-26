@@ -224,6 +224,27 @@ BEGIN
     v_filas_tiempo
   );
 
+  -- =============================================================================
+  -- 4. smr_dim_fuente  — Desde smr_fuente_datos
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_fuente (
+      fuente_key, fuente_id, codigo_fuente, nombre_fuente,
+      tipo_fuente, categoria_fuente, activo,
+      organizacion_id
+  )
+  SELECT
+      ROW_NUMBER() OVER (ORDER BY fd.codigo)                                     AS fuente_key,
+      ROW_NUMBER() OVER (ORDER BY fd.codigo)                                     AS fuente_id,
+      fd.codigo,
+      fd.nombre,
+      tf.codigo                                                                   AS tipo_fuente,
+      COALESCE(tf.categoria, 'OTRO')                                             AS categoria_fuente,
+      CASE WHEN fd.activo = 'S' THEN 1 ELSE 0 END,
+      1                                                                           AS organizacion_id
+  FROM smr_fuente_datos fd
+  JOIN smr_tipo_fuente tf ON tf.id = fd.tipo_fuente_id
+  WHERE fd.activo = 'S';
+
   RAISE NOTICE '%', v_resumen;
   RETURN v_resumen;
 END;
