@@ -426,6 +426,131 @@ BEGIN
   FROM smr_proceso p
   WHERE p.activo = 'S';
 
+  -- =============================================================================
+  -- 10. smr_fact_ejecucion  — 30 dias de ejecuciones simuladas
+  --     Patron: 1 ejecucion por dia, mayoria exitosas, algunos fallos
+  --     Proceso: ETL_VENTAS_SCANN (proceso_id=1)
+  --     Horario: 04:00 AM cada dia, ~45 minutos de duracion
+  -- =============================================================================
+  INSERT INTO smr_fact_ejecucion (
+      ejecucion_id,
+      proceso_key,
+      fecha_key,
+      tiempo_key,
+      tiempo_fin_key,
+      status_key,
+      usuario_key,
+      fuente_key,
+      destino_key,
+      punto_venta_key,
+      numero_registros_origen,
+      numero_registros_procesados,
+      numero_registros_exitosos,
+      numero_registros_fallidos,
+      numero_registros_rechazados,
+      numero_lotes_total,
+      numero_lotes_exitosos,
+      numero_lotes_fallidos,
+      porcentaje_exito,
+      duracion_segundos,
+      duracion_minutos,
+      duracion_horas,
+      tiempo_promedio_por_registro_ms,
+      throughput_registros_por_segundo,
+      throughput_mb_por_segundo,
+      tamano_datos_procesados_mb,
+      indicador_exito,
+      indicador_error,
+      indicador_warning,
+      excede_sla,
+      requiere_reintento,
+      tiene_rechazos_calidad,
+      numero_reintentos,
+      numero_alertas_enviadas,
+      numero_errores,
+      numero_warnings,
+      costo_estimado_usd,
+      tipo_ejecucion,
+      organizacion_id
+  )
+  WITH dias AS (
+      SELECT
+          d                                                      AS offset_dia,
+          (CURRENT_DATE - (30 - d) * INTERVAL '1 day')::date   AS fecha_ejec,
+          -- Simulacion: dia 5, 12, 20 = fallo; dia 8 = warning/excede SLA
+          CASE WHEN d IN (5, 12, 20) THEN 'FALLIDO'
+              ELSE 'TERMINADO' END                             AS resultado,
+          CASE WHEN d = 8 THEN 1 ELSE 0 END                    AS es_lento,
+          CASE WHEN d IN (5, 12, 20) THEN 0
+              WHEN d = 8 THEN 0.97
+              ELSE 0.9994 END                                  AS pct_exito
+      FROM generate_series(1, 30) d
+  )
+  SELECT
+      10000 + d.offset_dia                                                       AS ejecucion_id,
+      7001                                                                        AS proceso_key,  -- ETL_VENTAS_SCANN
+      TO_CHAR(d.fecha_ejec, 'YYYYMMDD')::numeric                                AS fecha_key,
+      400                                                                         AS tiempo_key,    -- 04:00 inicio
+      CASE WHEN d.es_lento = 1 THEN 530
+          WHEN d.resultado = 'FALLIDO' THEN 415
+          ELSE 445 END                                                           AS tiempo_fin_key,              -- aprox 04:45
+      -- status_key: TERMINADO=1003, FALLIDO=1004
+      CASE WHEN d.resultado = 'FALLIDO' THEN 1004 ELSE 1003 END                 AS status_key,
+      5099                                                                        AS usuario_key,  -- sistema
+      2001                                                                        AS fuente_key,    -- REDSHIFT_PROD
+      3001                                                                        AS destino_key,  -- SCANNTECH_API
+      NULL                                                                        AS punto_venta_key, -- aplica a todas
+      -- Registros: ~35.000 por ejecucion exitosa, ~5000 si fallo rapido
+      CASE WHEN d.resultado = 'FALLIDO' THEN 5000  ELSE 35000 END                AS numero_registros_origen,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 4800  ELSE 35000 END                AS numero_registros_procesados,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0
+          ELSE (35000 * d.pct_exito)::int END                                    AS numero_registros_exitosos,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 4800
+          ELSE 35000 - (35000 * d.pct_exito)::int END                           AS numero_registros_fallidos,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 200   ELSE 2 END                    AS numero_registros_rechazados,
+      -- Lotes: ceil(registros / 350)
+      CASE WHEN d.resultado = 'FALLIDO' THEN 14    ELSE 100 END                  AS numero_lotes_total,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0     ELSE 99  END                  AS numero_lotes_exitosos,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 14    ELSE 1   END                  AS numero_lotes_fallidos,
+      -- Porcentaje exito
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0.00
+          ELSE ROUND((d.pct_exito * 100)::numeric, 2) END                        AS porcentaje_exito,
+      -- Duracion
+      CASE WHEN d.es_lento = 1 THEN 5400  -- 90 min (excede SLA de 60)
+          WHEN d.resultado = 'FALLIDO' THEN 900
+          ELSE 2700 END                                                           AS duracion_segundos,
+      CASE WHEN d.es_lento = 1 THEN 90.00
+          WHEN d.resultado = 'FALLIDO' THEN 15.00
+          ELSE 45.00 END                                                          AS duracion_minutos,
+      CASE WHEN d.es_lento = 1 THEN 1.5000
+          WHEN d.resultado = 'FALLIDO' THEN 0.2500
+          ELSE 0.7500 END                                                         AS duracion_horas,
+      -- Throughput
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0
+          ELSE ROUND((2700.0 / 35000 * 1000)::numeric, 4) END                    AS tiempo_promedio_por_registro_ms,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0
+          ELSE ROUND((35000.0 / 2700)::numeric, 2) END                           AS throughput_registros_por_segundo,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0 ELSE 0.54 END                     AS throughput_mb_por_segundo,
+      CASE WHEN d.resultado = 'FALLIDO' THEN 0 ELSE 87.50 END                    AS tamano_datos_procesados_mb,
+      -- Indicadores
+      CASE WHEN d.resultado = 'TERMINADO' THEN 1 ELSE 0 END                      AS indicador_exito,
+      CASE WHEN d.resultado = 'FALLIDO'   THEN 1 ELSE 0 END                      AS indicador_error,
+      CASE WHEN d.es_lento = 1 OR d.pct_exito < 1 THEN 1 ELSE 0 END             AS indicador_warning,
+      -- Excede SLA (tiempo > 60 min = 3600 seg)
+      CASE WHEN d.es_lento = 1 THEN 1 ELSE 0 END                                 AS excede_sla,
+      CASE WHEN d.resultado = 'FALLIDO'   THEN 1 ELSE 0 END                      AS requiere_reintento,
+      CASE WHEN d.pct_exito < 1 AND d.resultado = 'TERMINADO' THEN 1 ELSE 0 END  AS tiene_rechazos_calidad,
+      CASE WHEN d.resultado = 'FALLIDO'   THEN 2 ELSE 0 END                      AS numero_reintentos,
+      CASE WHEN d.resultado = 'FALLIDO'   THEN 2
+          WHEN d.es_lento = 1 THEN 1 ELSE 0 END                                  AS numero_alertas_enviadas,
+      CASE WHEN d.resultado = 'FALLIDO'   THEN 5 ELSE 0 END                      AS numero_errores,
+      CASE WHEN d.es_lento = 1 OR d.pct_exito < 1 THEN 3 ELSE 0 END             AS numero_warnings,
+      CASE WHEN d.resultado = 'FALLIDO'   THEN 0.0012
+          ELSE 0.0024 END                                                         AS costo_estimado_usd,
+      'AUTOMATICO'                                                                 AS tipo_ejecucion,
+      1                                                                            AS organizacion_id
+  FROM dias d;
+
   RAISE NOTICE '%', v_resumen;
   RETURN v_resumen;
 END;
