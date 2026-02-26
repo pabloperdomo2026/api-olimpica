@@ -1,8 +1,7 @@
 -- =============================================================================
--- Procedimiento: smr_dashboard_refresh
--- Descripcion : Calcula los KPIs del dashboard para el dia actual
---               (ejecuciones totales, exitosas, fallidas, en proceso y
---               tasa de exito) y devuelve un resumen en texto.
+-- Funcion: smr_dashboard_refresh
+-- Descripcion : Recarga el modelo estrella completo (TRUNCATE + INSERT)
+--               para las dimensiones de fecha y tiempo.
 -- Uso         : SELECT smr_dashboard_refresh();
 -- =============================================================================
 
@@ -11,13 +10,12 @@ RETURNS TEXT
 LANGUAGE plpgsql
 AS $$
 DECLARE
-  v_total        INTEGER;
-  v_exitosas     INTEGER;
-  v_fallidas     INTEGER;
-  v_en_proceso   INTEGER;
-  v_tasa_exito   NUMERIC(5,2);
-  v_resumen      TEXT;
+  v_filas_fecha   INTEGER;
+  v_filas_tiempo  INTEGER;
+  v_resumen       TEXT;
 BEGIN
+
+  -- Limpiar tablas en orden inverso (agregadas -> hechos -> dimensiones)
   TRUNCATE TABLE smr_agg_resumen_punto_venta   CASCADE;
   TRUNCATE TABLE smr_agg_resumen_diario        CASCADE;
   TRUNCATE TABLE smr_fact_alerta               CASCADE;
@@ -35,10 +33,10 @@ BEGIN
   TRUNCATE TABLE smr_dm_dim_tiempo                CASCADE;
   TRUNCATE TABLE smr_dm_dim_fecha                 CASCADE;
 
-  -- =============================================================================
-  -- 1. smr_dim_fecha  — 2 anos: 2025-01-01 al 2026-12-31
+  -- ===========================================================================
+  -- 1. smr_dim_fecha — 2 anos: 2025-01-01 al 2026-12-31
   --    Incluye festivos Colombia (Ley 51/1983)
-  -- =============================================================================
+  -- ===========================================================================
   INSERT INTO smr_dm_dim_fecha (
       fecha_key, fecha, anio, mes, dia,
       trimestre, semestre, numero_semana, dia_semana,
@@ -48,14 +46,10 @@ BEGIN
       periodo_fiscal, anio_fiscal, mes_fiscal
   )
   WITH
-
-  -- Rango de fechas
   serie AS (
       SELECT d::date AS fecha
       FROM generate_series('2025-01-01'::date, '2026-12-31'::date, '1 day') d
   ),
-
-  -- Festivos fijos Colombia
   festivos_fijos AS (
       SELECT * FROM (VALUES
           -- 2025
@@ -65,9 +59,8 @@ BEGIN
           ('2025-08-07'::date, 'Batalla de Boyaca'),
           ('2025-12-08'::date, 'Inmaculada Concepcion'),
           ('2025-12-25'::date, 'Navidad'),
-          -- Festivos de puente 2025 (trasladados al lunes)
           ('2025-01-06'::date, 'Reyes Magos'),
-          ('2025-03-24'::date, 'San Jose'),         -- 19 mar -> lunes siguiente
+          ('2025-03-24'::date, 'San Jose'),
           ('2025-04-17'::date, 'Jueves Santo'),
           ('2025-04-18'::date, 'Viernes Santo'),
           ('2025-05-29'::date, 'Ascension del Senor'),
@@ -86,7 +79,6 @@ BEGIN
           ('2026-08-07'::date, 'Batalla de Boyaca'),
           ('2026-12-08'::date, 'Inmaculada Concepcion'),
           ('2026-12-25'::date, 'Navidad'),
-          -- Festivos de puente 2026
           ('2026-01-12'::date, 'Reyes Magos'),
           ('2026-03-23'::date, 'San Jose'),
           ('2026-04-02'::date, 'Jueves Santo'),
@@ -101,9 +93,7 @@ BEGIN
           ('2026-11-16'::date, 'Independencia de Cartagena')
       ) AS f(fecha, nombre)
   )
-
   SELECT
-      -- Clave surrogada YYYYMMDD
       TO_CHAR(s.fecha, 'YYYYMMDD')::numeric                                     AS fecha_key,
       s.fecha,
       EXTRACT(YEAR  FROM s.fecha)::numeric                                       AS anio,
@@ -112,74 +102,86 @@ BEGIN
       EXTRACT(QUARTER FROM s.fecha)::numeric                                     AS trimestre,
       CASE WHEN EXTRACT(MONTH FROM s.fecha) <= 6 THEN 1 ELSE 2 END              AS semestre,
       EXTRACT(WEEK FROM s.fecha)::numeric                                        AS numero_semana,
-      -- 0=domingo, 1=lunes ... 6=sabado  (ISODOW: 7=dom, lo convertimos)
       CASE EXTRACT(ISODOW FROM s.fecha)::int
           WHEN 7 THEN 0 ELSE EXTRACT(ISODOW FROM s.fecha)::int END               AS dia_semana,
-      -- Nombre dia
       CASE EXTRACT(ISODOW FROM s.fecha)::int
           WHEN 1 THEN 'Lunes' WHEN 2 THEN 'Martes' WHEN 3 THEN 'Miercoles'
           WHEN 4 THEN 'Jueves' WHEN 5 THEN 'Viernes' WHEN 6 THEN 'Sabado'
           ELSE 'Domingo' END                                                      AS nombre_dia_semana,
-      -- Nombre mes
       CASE EXTRACT(MONTH FROM s.fecha)::int
           WHEN  1 THEN 'Enero'      WHEN  2 THEN 'Febrero'   WHEN  3 THEN 'Marzo'
           WHEN  4 THEN 'Abril'      WHEN  5 THEN 'Mayo'       WHEN  6 THEN 'Junio'
           WHEN  7 THEN 'Julio'      WHEN  8 THEN 'Agosto'     WHEN  9 THEN 'Septiembre'
           WHEN 10 THEN 'Octubre'    WHEN 11 THEN 'Noviembre'  WHEN 12 THEN 'Diciembre'
       END                                                                         AS nombre_mes,
-      -- Nombre trimestre
       CASE EXTRACT(QUARTER FROM s.fecha)::int
           WHEN 1 THEN 'Q1 - Primer Trimestre'   WHEN 2 THEN 'Q2 - Segundo Trimestre'
           WHEN 3 THEN 'Q3 - Tercer Trimestre'   WHEN 4 THEN 'Q4 - Cuarto Trimestre'
       END                                                                         AS nombre_trimestre,
       TO_CHAR(s.fecha, 'YYYY-MM')                                                AS anio_mes,
       TO_CHAR(s.fecha, 'YYYY') || '-Q' || EXTRACT(QUARTER FROM s.fecha)::text   AS anio_trimestre,
-      -- Fin de semana (sabado o domingo)
       CASE WHEN EXTRACT(ISODOW FROM s.fecha) IN (6, 7) THEN 1 ELSE 0 END        AS es_fin_semana,
-      -- Festivo
       CASE WHEN f.fecha IS NOT NULL THEN 1 ELSE 0 END                            AS es_festivo,
       f.nombre                                                                    AS nombre_festivo,
-      -- Dia laboral = entre semana Y no festivo
       CASE WHEN EXTRACT(ISODOW FROM s.fecha) NOT IN (6, 7)
                 AND f.fecha IS NULL THEN 1 ELSE 0 END                            AS es_dia_laboral,
-      -- Periodo fiscal YYYY-Pnn
       TO_CHAR(s.fecha, 'YYYY') || '-P' || LPAD(EXTRACT(MONTH FROM s.fecha)::text, 2, '0')
                                                                                   AS periodo_fiscal,
       EXTRACT(YEAR  FROM s.fecha)::numeric                                       AS anio_fiscal,
       EXTRACT(MONTH FROM s.fecha)::numeric                                       AS mes_fiscal
-
   FROM serie s
   LEFT JOIN festivos_fijos f ON f.fecha = s.fecha
   ORDER BY s.fecha;
-  -- SELECT
-  --   COUNT(*)                                                                  AS total,
-  --   COUNT(*) FILTER (WHERE sp.es_exitoso = TRUE)                             AS exitosas,
-  --   COUNT(*) FILTER (WHERE sp.es_error   = TRUE)                             AS fallidas,
-  --   COUNT(*) FILTER (WHERE sp.es_exitoso = FALSE AND sp.es_error = FALSE)    AS en_proceso
-  -- INTO v_total, v_exitosas, v_fallidas, v_en_proceso
-  -- FROM smr_ejecucion_proceso ep
-  -- JOIN smr_status_proceso    sp ON ep.status_proceso_id = sp.id
-  -- WHERE ep.fecha_ejecucion = CURRENT_DATE;
 
-  -- IF (v_exitosas + v_fallidas) > 0 THEN
-  --   v_tasa_exito := ROUND(
-  --     (v_exitosas::NUMERIC / (v_exitosas + v_fallidas)) * 100, 2
-  --   );
-  -- ELSE
-  --   v_tasa_exito := 0;
-  -- END IF;
+  GET DIAGNOSTICS v_filas_fecha = ROW_COUNT;
 
-  -- v_resumen := FORMAT(
-  --   '[%s] total=%s | exitosas=%s | fallidas=%s | en_proceso=%s | tasa_exito=%s%%',
-  --   TO_CHAR(NOW(), 'DD/MM/YYYY HH24:MI:SS'),
-  --   COALESCE(v_total,      0),
-  --   COALESCE(v_exitosas,   0),
-  --   COALESCE(v_fallidas,   0),
-  --   COALESCE(v_en_proceso, 0),
-  --   COALESCE(v_tasa_exito, 0)
-  -- );
+  -- ===========================================================================
+  -- 2. smr_dim_tiempo — 1440 registros (24h x 60min)
+  -- ===========================================================================
+  INSERT INTO smr_dm_dim_tiempo (
+      tiempo_key, hora, minuto, segundo,
+      hora_24, hora_12, periodo_dia, turno,
+      es_horario_laboral, es_horario_pico
+  )
+  SELECT
+      h * 100 + m                                                                AS tiempo_key,
+      h                                                                           AS hora,
+      m                                                                           AS minuto,
+      0                                                                           AS segundo,
+      LPAD(h::text, 2, '0') || ':' || LPAD(m::text, 2, '0')                    AS hora_24,
+      CASE
+          WHEN h = 0   THEN '12:' || LPAD(m::text, 2, '0') || ' AM'
+          WHEN h < 12  THEN  h::text || ':' || LPAD(m::text, 2, '0') || ' AM'
+          WHEN h = 12  THEN '12:' || LPAD(m::text, 2, '0') || ' PM'
+          ELSE (h - 12)::text || ':' || LPAD(m::text, 2, '0') || ' PM'
+      END                                                                         AS hora_12,
+      CASE
+          WHEN h BETWEEN 0  AND  5 THEN 'Madrugada'
+          WHEN h BETWEEN 6  AND 11 THEN 'Manana'
+          WHEN h BETWEEN 12 AND 17 THEN 'Tarde'
+          ELSE                          'Noche'
+      END                                                                         AS periodo_dia,
+      CASE
+          WHEN h BETWEEN  6 AND 13 THEN 'Turno-A'
+          WHEN h BETWEEN 14 AND 21 THEN 'Turno-B'
+          ELSE                          'Turno-C'
+      END                                                                         AS turno,
+      CASE WHEN h BETWEEN 7 AND 18 THEN 1 ELSE 0 END                            AS es_horario_laboral,
+      CASE WHEN h BETWEEN 4 AND  7 THEN 1 ELSE 0 END                            AS es_horario_pico
+  FROM generate_series(0, 23) h
+  CROSS JOIN generate_series(0, 59) m
+  ORDER BY h, m;
 
-  -- RAISE NOTICE '%', v_resumen;
+  GET DIAGNOSTICS v_filas_tiempo = ROW_COUNT;
+
+  v_resumen := FORMAT(
+    '[%s] Modelo estrella cargado: smr_dim_fecha=%s filas | smr_dim_tiempo=%s filas',
+    TO_CHAR(NOW(), 'DD/MM/YYYY HH24:MI:SS'),
+    v_filas_fecha,
+    v_filas_tiempo
+  );
+
+  RAISE NOTICE '%', v_resumen;
   RETURN v_resumen;
 END;
 $$;
