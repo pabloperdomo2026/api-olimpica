@@ -245,6 +245,187 @@ BEGIN
   JOIN smr_tipo_fuente tf ON tf.id = fd.tipo_fuente_id
   WHERE fd.activo = 'S';
 
+  -- =============================================================================
+  -- 5. smr_dim_destino  — Desde smr_destino_datos
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_destino (
+      destino_key, destino_id, codigo_destino, nombre_destino,
+      tipo_destino, categoria_destino, activo,
+      organizacion_id
+  )
+  SELECT
+      ROW_NUMBER() OVER (ORDER BY dd.codigo)                                     AS destino_key,
+      ROW_NUMBER() OVER (ORDER BY dd.codigo)                                     AS destino_id,
+      dd.codigo,
+      dd.nombre,
+      td.codigo                                                                   AS tipo_destino,
+      COALESCE(td.categoria, 'OTRO')                                             AS categoria_destino,
+      CASE WHEN dd.activo = 'S' THEN 1 ELSE 0 END,
+      1                                                                           AS organizacion_id
+  FROM smr_destino_datos dd
+  JOIN smr_tipo_destino td ON td.id = dd.tipo_destino_id
+  WHERE dd.activo = 'S';
+
+  -- =============================================================================
+  -- 6. smr_dim_punto_venta  — Desde smr_punto_venta + puntos adicionales
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_punto_venta (
+      punto_venta_key, punto_venta_id, codigo_tienda, nombre_tienda,
+      region, zona, ciudad, departamento,
+      tipo_tienda, tamano_tienda, fecha_apertura, activo,
+      organizacion_id
+  )
+  SELECT
+      ROW_NUMBER() OVER (ORDER BY pv.codigo_tienda)                              AS punto_venta_key,
+      ROW_NUMBER() OVER (ORDER BY pv.codigo_tienda)                              AS punto_venta_id,
+      pv.codigo_tienda,
+      pv.nombre_tienda,
+      CASE
+          WHEN pv.ciudad ILIKE 'Barranquilla%' OR pv.ciudad ILIKE 'Cartagena%'
+               OR pv.ciudad ILIKE 'Santa Marta%' OR pv.ciudad ILIKE 'Valledupar%' THEN 'Caribe'
+          WHEN pv.ciudad ILIKE 'Medellin%' OR pv.ciudad ILIKE 'Envigado%'
+               OR pv.ciudad ILIKE 'Bucaramanga%' OR pv.ciudad ILIKE 'Pereira%'
+               OR pv.ciudad ILIKE 'Bogot%'                                       THEN 'Andina'
+          WHEN pv.ciudad ILIKE 'Cali%' OR pv.ciudad ILIKE 'Palmira%'            THEN 'Pacifico'
+          ELSE 'Otra'
+      END                                                                         AS region,
+      'Zona ' || pv.ciudad                                                        AS zona,
+      pv.ciudad,
+      CASE
+          WHEN pv.ciudad ILIKE 'Barranquilla%' OR pv.ciudad ILIKE 'Soledad%'    THEN 'Atlantico'
+          WHEN pv.ciudad ILIKE 'Cartagena%'                                      THEN 'Bolivar'
+          WHEN pv.ciudad ILIKE 'Santa Marta%'                                    THEN 'Magdalena'
+          WHEN pv.ciudad ILIKE 'Valledupar%'                                     THEN 'Cesar'
+          WHEN pv.ciudad ILIKE 'Bogot%'                                          THEN 'Cundinamarca'
+          WHEN pv.ciudad ILIKE 'Medellin%' OR pv.ciudad ILIKE 'Envigado%'       THEN 'Antioquia'
+          WHEN pv.ciudad ILIKE 'Cali%' OR pv.ciudad ILIKE 'Palmira%'            THEN 'Valle del Cauca'
+          WHEN pv.ciudad ILIKE 'Bucaramanga%'                                    THEN 'Santander'
+          WHEN pv.ciudad ILIKE 'Pereira%'                                        THEN 'Risaralda'
+          ELSE 'Otro'
+      END                                                                         AS departamento,
+      'Hipermercado'                                                              AS tipo_tienda,
+      'Grande'                                                                    AS tamano_tienda,
+      NULL::date                                                                  AS fecha_apertura,
+      CASE WHEN pv.activo = 'S' THEN 1 ELSE 0 END,
+      1                                                                           AS organizacion_id
+  FROM smr_punto_venta pv
+  WHERE pv.activo = 'S';
+
+  -- Puntos de venta adicionales de ejemplo (Olimpica tiene ~70 tiendas)
+  INSERT INTO smr_dm_dim_punto_venta (
+      punto_venta_key, punto_venta_id, codigo_tienda, nombre_tienda,
+      region, zona, ciudad, departamento,
+      tipo_tienda, tamano_tienda, fecha_apertura, activo,
+      organizacion_id
+  ) VALUES
+  (4010, 10, 'BAQ001', 'Olimpica Barranquilla Centro',   'Caribe',  'Zona Norte',    'Barranquilla', 'Atlantico',    'Hipermercado', 'Grande',   '2010-06-15', 1, 1),
+  (4011, 11, 'BAQ002', 'Olimpica Barranquilla Norte',    'Caribe',  'Zona Norte',    'Barranquilla', 'Atlantico',    'Supermercado', 'Mediano',  '2014-03-20', 1, 1),
+  (4012, 12, 'CAR001', 'Olimpica Cartagena Bocagrande',  'Caribe',  'Zona Norte',    'Cartagena',    'Bolivar',      'Hipermercado', 'Grande',   '2008-11-10', 1, 1),
+  (4013, 13, 'MDE001', 'Olimpica Medellin El Poblado',   'Andina',  'Zona Centro',   'Medellin',     'Antioquia',    'Hipermercado', 'Grande',   '2012-07-04', 1, 1),
+  (4014, 14, 'MDE002', 'Olimpica Medellin Envigado',     'Andina',  'Zona Centro',   'Envigado',     'Antioquia',    'Supermercado', 'Mediano',  '2017-02-14', 1, 1),
+  (4015, 15, 'CLO001', 'Olimpica Cali Chipichape',       'Pacifica','Zona Sur',      'Cali',         'Valle',        'Hipermercado', 'Grande',   '2009-08-30', 1, 1),
+  (4016, 16, 'BGA001', 'Olimpica Bucaramanga Cacique',   'Andina',  'Zona Oriente',  'Bucaramanga',  'Santander',    'Hipermercado', 'Grande',   '2011-05-18', 1, 1),
+  (4017, 17, 'CTG001', 'Olimpica Santa Marta',           'Caribe',  'Zona Norte',    'Santa Marta',  'Magdalena',    'Supermercado', 'Mediano',  '2016-09-22', 1, 1),
+  (4018, 18, 'PEI001', 'Olimpica Pereira Victoria',      'Andina',  'Zona Centro',   'Pereira',      'Risaralda',    'Supermercado', 'Mediano',  '2013-12-05', 1, 1),
+  (4019, 19, 'VUP001', 'Olimpica Valledupar',            'Caribe',  'Zona Norte',    'Valledupar',   'Cesar',        'Supermercado', 'Pequeno',  '2019-04-08', 1, 1);
+
+  -- =============================================================================
+  -- 7. smr_dim_usuario  — Desde smr_usuario
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_usuario (
+      usuario_key, usuario_id, username, nombre_completo,
+      rol_principal, departamento, activo,
+      organizacion_id
+  )
+  SELECT
+      ROW_NUMBER() OVER (ORDER BY u.email)                                       AS usuario_key,
+      ROW_NUMBER() OVER (ORDER BY u.email)                                       AS usuario_id,
+      u.email,
+      u.nombre || ' ' || u.apellido,
+      (SELECT r.nombre FROM smr_usuario_rol ur
+       JOIN smr_rol r ON r.id = ur.rol_id
+       WHERE ur.usuario_id = u.id LIMIT 1)                                       AS rol_principal,
+      'Tecnologia'                                                                AS departamento,
+      CASE WHEN u.activo = 'S' THEN 1 ELSE 0 END,
+      1                                                                           AS organizacion_id
+  FROM smr_dim_usuario u
+  WHERE u.activo = 'S';
+
+  -- Usuario sistema (ejecuciones automaticas)
+  INSERT INTO smr_dm_dim_usuario (
+      usuario_key, usuario_id, username, nombre_completo,
+      rol_principal, departamento, activo,
+      organizacion_id
+  ) VALUES
+  (5099, 99, 'sistema', 'Proceso Automatico', 'Sistema', 'ETL Automatico', 1, 1);
+
+  -- =============================================================================
+  -- 8. smr_dim_tipo_error  — Catalogo de tipos de error ETL
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_tipo_error (
+      tipo_error_key, codigo_error, categoria_error,
+      es_error_tecnico, es_error_negocio, es_error_datos, es_recuperable,
+      severidad, nombre_severidad,
+      organizacion_id
+  ) VALUES
+  -- Errores de conexion / infraestructura
+  (6001, 'ERR_DB_CONN',        'CONEXION',        1, 0, 0, 1, 4, 'CRITICAL', 1),
+  (6002, 'ERR_API_TIMEOUT',    'CONEXION',        1, 0, 0, 1, 3, 'ERROR',    1),
+  (6003, 'ERR_API_5XX',        'CONEXION',        1, 0, 0, 1, 3, 'ERROR',    1),
+  (6004, 'ERR_API_4XX',        'CONEXION',        1, 0, 0, 0, 3, 'ERROR',    1),
+  (6005, 'ERR_RATE_LIMIT',     'CONEXION',        1, 0, 0, 1, 2, 'WARNING',  1),
+  -- Errores de transformacion / datos
+  (6010, 'ERR_VAL_NULO',       'VALIDACION',      0, 0, 1, 0, 2, 'WARNING',  1),
+  (6011, 'ERR_VAL_TIPO',       'VALIDACION',      0, 0, 1, 0, 2, 'WARNING',  1),
+  (6012, 'ERR_VAL_RANGO',      'VALIDACION',      0, 0, 1, 0, 2, 'WARNING',  1),
+  (6013, 'ERR_VAL_DUPLICADO',  'VALIDACION',      0, 0, 1, 0, 2, 'WARNING',  1),
+  (6014, 'ERR_TRANSFORM',      'TRANSFORMACION',  1, 0, 1, 0, 3, 'ERROR',    1),
+  -- Errores de negocio
+  (6020, 'ERR_NEG_PV_INV',     'NEGOCIO',         0, 1, 0, 0, 3, 'ERROR',    1),
+  (6021, 'ERR_NEG_PROD_INV',   'NEGOCIO',         0, 1, 0, 0, 2, 'WARNING',  1),
+  (6022, 'ERR_NEG_PRECIO',     'NEGOCIO',         0, 1, 0, 0, 2, 'WARNING',  1),
+  -- Errores de cloud / AWS
+  (6030, 'ERR_STEP_FUNC',      'CLOUD',           1, 0, 0, 1, 4, 'CRITICAL', 1),
+  (6031, 'ERR_LAMBDA',         'CLOUD',           1, 0, 0, 1, 3, 'ERROR',    1),
+  (6032, 'ERR_S3_ACCESS',      'CLOUD',           1, 0, 0, 1, 3, 'ERROR',    1),
+  -- SLA
+  (6040, 'ERR_SLA_TIEMPO',     'SLA',             0, 1, 0, 0, 3, 'ERROR',    1),
+  (6041, 'ERR_SLA_CALIDAD',    'SLA',             0, 1, 0, 0, 3, 'ERROR',    1);
+
+  -- =============================================================================
+  -- 9. smr_dim_proceso  — Desde smr_proceso (SCD Tipo 2, version vigente)
+  -- =============================================================================
+  INSERT INTO smr_dm_dim_proceso (
+      proceso_key, proceso_id, codigo_proceso, nombre_proceso,
+      tipo_proceso, categoria_proceso, nivel_criticidad, nivel_criticidad_numerico,
+      fuente_nombre, tipo_fuente, destino_nombre, tipo_destino,
+      permite_ejecucion_paralela, requiere_ventana_mantenimiento, activo,
+      fecha_efectiva_desde, fecha_efectiva_hasta, es_vigente,
+      organizacion_id
+  )
+  SELECT
+      ROW_NUMBER() OVER (ORDER BY p.codigo)                                      AS proceso_key,
+      ROW_NUMBER() OVER (ORDER BY p.codigo)                                      AS proceso_id,
+      p.codigo,
+      p.nombre,
+      NULL                                                                        AS tipo_proceso,
+      'VENTAS'                                                                    AS categoria_proceso,
+      NULL                                                                        AS nivel_criticidad,
+      p.nivel_criticidad_id                                                       AS nivel_criticidad_numerico,
+      NULL                                                                        AS fuente_nombre,
+      NULL                                                                        AS tipo_fuente,
+      NULL                                                                        AS destino_nombre,
+      NULL                                                                        AS tipo_destino,
+      0                                                                           AS permite_ejecucion_paralela,
+      0                                                                           AS requiere_ventana_mantenimiento,
+      CASE WHEN p.activo = 'S' THEN 1 ELSE 0 END,
+      NOW() - INTERVAL '90 days'                                                 AS fecha_efectiva_desde,
+      NULL                                                                        AS fecha_efectiva_hasta,
+      true                                                                        AS es_vigente,
+      1                                                                           AS organizacion_id
+  FROM smr_proceso p
+  WHERE p.activo = 'S';
+
   RAISE NOTICE '%', v_resumen;
   RETURN v_resumen;
 END;
