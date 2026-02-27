@@ -551,6 +551,403 @@ BEGIN
       1                                                                            AS organizacion_id
   FROM dias d;
 
+  -- =============================================================================
+  -- 11. smr_fact_lote  — Lotes de cada ejecucion exitosa
+  --     Solo para ejecuciones exitosas (no fallidas)
+  --     Se generan 99 lotes exitosos + 1 fallido para ejecucion exitosa
+  --     Para ejecuciones fallidas: 0 lotes (fallaron antes de enviar)
+  -- =============================================================================
+  INSERT INTO smr_fact_lote (
+      lote_id,
+      ejecucion_id,
+      proceso_key,
+      fecha_key,
+      tiempo_key,
+      status_key,
+      punto_venta_key,
+      numero_lote,
+      id_lote_externo,
+      numero_registros_lote,
+      numero_registros_exitosos,
+      numero_registros_fallidos,
+      porcentaje_exito_lote,
+      duracion_milisegundos,
+      lote_exitoso,
+      lote_fallido,
+      requiere_reintento,
+      numero_reintentos,
+      codigo_http,
+      es_http_exitoso,
+      organizacion_id
+  )
+  WITH ejecuciones_ok AS (
+      SELECT
+          fe.ejecucion_id,
+          fe.fecha_key,
+          fe.proceso_key
+      FROM smr_fact_ejecucion fe
+      WHERE fe.indicador_exito = 1
+  ),
+  lotes AS (
+      SELECT
+          e.ejecucion_id,
+          e.fecha_key,
+          e.proceso_key,
+          n                                                                       AS numero_lote,
+          -- Ultimo lote (100) tiene fallo simulado
+          CASE WHEN n = 100 THEN 0 ELSE 1 END                                    AS es_exitoso
+      FROM ejecuciones_ok e
+      CROSS JOIN generate_series(1, 100) n
+  )
+  SELECT
+      -- PK unica: ejecucion * 1000 + numero_lote
+      l.ejecucion_id * 1000 + l.numero_lote                                      AS lote_id,
+      l.ejecucion_id,
+      l.proceso_key,
+      l.fecha_key,
+      400 + (l.numero_lote / 10)                                                  AS tiempo_key,
+      CASE WHEN l.es_exitoso = 1 THEN 1003 ELSE 1004 END                         AS status_key,
+      NULL                                                                         AS punto_venta_key,
+      l.numero_lote,
+      'LOTE-' || TO_CHAR(l.fecha_key, 'FM00000000') || '-' ||
+          LPAD(l.numero_lote::text, 5, '0')                                       AS id_lote_externo,
+      350                                                                          AS numero_registros_lote,
+      CASE WHEN l.es_exitoso = 1 THEN 350 ELSE 0 END                             AS numero_registros_exitosos,
+      CASE WHEN l.es_exitoso = 1 THEN 0   ELSE 350 END                           AS numero_registros_fallidos,
+      CASE WHEN l.es_exitoso = 1 THEN 100.00 ELSE 0.00 END                       AS porcentaje_exito_lote,
+      -- Tiempo de respuesta: entre 800 y 1500 ms
+      800 + (l.numero_lote % 7) * 100                                             AS duracion_milisegundos,
+      l.es_exitoso                                                                 AS lote_exitoso,
+      1 - l.es_exitoso                                                             AS lote_fallido,
+      1 - l.es_exitoso                                                             AS requiere_reintento,
+      1 - l.es_exitoso                                                             AS numero_reintentos,
+      CASE WHEN l.es_exitoso = 1 THEN 200 ELSE 503 END                           AS codigo_http,
+      l.es_exitoso                                                                 AS es_http_exitoso,
+      1
+  FROM lotes l;
+
+  -- =============================================================================
+  -- 12. smr_fact_error  — Errores de las ejecuciones fallidas
+  --     3 ejecuciones fallidas (dia 5, 12, 20 = ejecucion_id 10005, 10012, 10020)
+  -- =============================================================================
+  INSERT INTO smr_fact_error (
+      error_id,
+      ejecucion_id,
+      proceso_key,
+      fecha_key,
+      tiempo_key,
+      tipo_error_key,
+      status_key,
+      punto_venta_key,
+      numero_errores,
+      numero_registros_afectados,
+      numero_lotes_afectados,
+      codigo_error,
+      categoria_error,
+      severidad_error,
+      es_error_critico,
+      es_error_recuperable,
+      fue_resuelto,
+      fue_reintentado,
+      numero_reintentos,
+      tiempo_resolucion_minutos,
+      organizacion_id
+  )
+  SELECT
+      e.ejecucion_id * 10 + n                                                    AS error_id,
+      e.ejecucion_id,
+      e.proceso_key,
+      e.fecha_key,
+      410                                                                          AS tiempo_key,
+      -- Alternar tipos de error: timeout, 5xx, step_func
+      CASE n % 3
+          WHEN 1 THEN 6002  -- ERR_API_TIMEOUT
+          WHEN 2 THEN 6003  -- ERR_API_5XX
+          ELSE       6030   -- ERR_STEP_FUNC
+      END                                                                          AS tipo_error_key,
+      1004                                                                         AS status_key,
+      NULL,
+      1                                                                            AS numero_errores,
+      350                                                                          AS numero_registros_afectados,
+      1                                                                            AS numero_lotes_afectados,
+      CASE n % 3
+          WHEN 1 THEN 'ERR_API_TIMEOUT'
+          WHEN 2 THEN 'ERR_API_5XX'
+          ELSE       'ERR_STEP_FUNC'
+      END                                                                          AS codigo_error,
+      CASE n % 3
+          WHEN 1 THEN 'CONEXION'
+          WHEN 2 THEN 'CONEXION'
+          ELSE       'CLOUD'
+      END                                                                          AS categoria_error,
+      CASE n % 3
+          WHEN 1 THEN 3
+          WHEN 2 THEN 3
+          ELSE       4
+      END                                                                          AS severidad_error,
+      CASE n % 3 WHEN 0 THEN 1 ELSE 0 END                                        AS es_error_critico,
+      1                                                                            AS es_error_recuperable,
+      true                                                                         AS fue_resuelto,
+      true                                                                         AS fue_reintentado,
+      2                                                                            AS numero_reintentos,
+      CASE n % 3
+          WHEN 1 THEN 12.5
+          WHEN 2 THEN 18.0
+          ELSE       25.0
+      END                                                                          AS tiempo_resolucion_minutos,
+      1
+  FROM smr_fact_ejecucion e
+  CROSS JOIN generate_series(1, 5) n   -- 5 errores por ejecucion fallida
+  WHERE e.indicador_error = 1;
+
+  -- Errores leves en ejecuciones exitosas con warnings (dia 8 = ejecucion 10008)
+  INSERT INTO smr_fact_error (
+      error_id, ejecucion_id, proceso_key,
+      fecha_key, tiempo_key,
+      tipo_error_key, status_key,
+      numero_errores, numero_registros_afectados, codigo_error, categoria_error,
+      severidad_error, es_error_critico, es_error_recuperable, fue_resuelto,
+      organizacion_id
+  )
+  SELECT
+      e.ejecucion_id * 10 + n                                                    AS error_id,
+      e.ejecucion_id,
+      e.proceso_key,
+      e.fecha_key,
+      445,
+      6005,   -- ERR_RATE_LIMIT
+      1003,
+      1, 350,
+      'ERR_RATE_LIMIT', 'CONEXION',
+      2, 0, 1, true, 1
+  FROM smr_fact_ejecucion e
+  CROSS JOIN generate_series(1, 3) n
+  WHERE e.excede_sla = 1;
+
+  -- =============================================================================
+  -- 13. smr_fact_sla  — Un registro por ejecucion
+  -- =============================================================================
+  INSERT INTO smr_fact_sla (
+      sla_id,
+      ejecucion_id,
+      proceso_key,
+      fecha_key,
+      tiempo_maximo_permitido_minutos,
+      tiempo_real_ejecucion_minutos,
+      diferencia_sla_minutos,
+      porcentaje_uso_sla,
+      umbral_calidad_minimo,
+      porcentaje_calidad_real,
+      umbral_error_maximo,
+      porcentaje_error_real,
+      cumple_sla_tiempo,
+      cumple_sla_calidad,
+      cumple_sla_errores,
+      cumple_sla_general,
+      excede_sla_por_minutos,
+      organizacion_id
+  )
+  SELECT
+      20000 + fe.ejecucion_id                                                    AS sla_id,
+      fe.ejecucion_id,
+      fe.proceso_key,
+      fe.fecha_key,
+      60.0                                                                        AS tiempo_maximo_permitido_minutos,
+      fe.duracion_minutos,
+      fe.duracion_minutos - 60.0                                                  AS diferencia_sla_minutos,
+      ROUND((fe.duracion_minutos / 60.0 * 100)::numeric, 2)                      AS porcentaje_uso_sla,
+      99.00                                                                        AS umbral_calidad_minimo,
+      CASE WHEN fe.indicador_error = 1 THEN 0.00 ELSE fe.porcentaje_exito END    AS porcentaje_calidad_real,
+      1.00                                                                         AS umbral_error_maximo,
+      CASE WHEN fe.indicador_error = 1 THEN 100.00
+          ELSE 100.0 - fe.porcentaje_exito END                                   AS porcentaje_error_real,
+      CASE WHEN fe.duracion_minutos <= 60 THEN 1 ELSE 0 END                      AS cumple_sla_tiempo,
+      CASE WHEN fe.indicador_error = 0 AND fe.porcentaje_exito >= 99.00 THEN 1
+          ELSE 0 END                                                              AS cumple_sla_calidad,
+      CASE WHEN fe.indicador_error = 0 AND (100.0 - fe.porcentaje_exito) <= 1.00
+          THEN 1 ELSE 0 END                                                       AS cumple_sla_errores,
+      CASE WHEN fe.duracion_minutos <= 60
+                AND fe.indicador_error = 0
+                AND fe.porcentaje_exito >= 99.00 THEN 1
+          ELSE 0 END                                                              AS cumple_sla_general,
+      GREATEST(0, fe.duracion_minutos - 60.0)                                    AS excede_sla_por_minutos,
+      1
+  FROM smr_fact_ejecucion fe;
+
+  -- =============================================================================
+  -- 14. smr_fact_alerta  — Alertas de ejecuciones con error o SLA excedido
+  -- =============================================================================
+  INSERT INTO smr_fact_alerta (
+      alerta_id,
+      ejecucion_id,
+      proceso_key,
+      fecha_key,
+      tiempo_key,
+      tipo_error_key,
+      usuario_key,
+      tipo_alerta,
+      categoria_alerta,
+      nivel_prioridad,
+      severidad,
+      numero_alertas,
+      fue_enviada,
+      fue_confirmada,
+      requiere_accion_inmediata,
+      tiempo_respuesta_minutos,
+      organizacion_id
+  )
+  -- Alertas por ejecuciones fallidas
+  SELECT
+      30000 + fe.ejecucion_id * 10 + n                                           AS alerta_id,
+      fe.ejecucion_id,
+      fe.proceso_key,
+      fe.fecha_key,
+      420,
+      6002,   -- ERR_API_TIMEOUT
+      5001,   -- admin
+      CASE n WHEN 1 THEN 'EMAIL' WHEN 2 THEN 'SNS' ELSE 'SLACK' END             AS tipo_alerta,
+      'ERROR_PROCESO',
+      4, 4, 1,
+      true, true, true,
+      CASE n WHEN 1 THEN 5.0 WHEN 2 THEN 3.0 ELSE 8.0 END,
+      1
+  FROM smr_fact_ejecucion fe
+  CROSS JOIN generate_series(1, 2) n
+  WHERE fe.indicador_error = 1
+
+  UNION ALL
+
+  -- Alertas por SLA excedido
+  SELECT
+      30000 + fe.ejecucion_id * 10 + 5                                           AS alerta_id,
+      fe.ejecucion_id,
+      fe.proceso_key,
+      fe.fecha_key,
+      530,
+      6040,   -- ERR_SLA_TIEMPO
+      5001,
+      'EMAIL',
+      'SLA_EXCEDIDO',
+      3, 3, 1,
+      true, false, false,
+      12.0,
+      1
+  FROM smr_fact_ejecucion fe
+  WHERE fe.excede_sla = 1;
+
+  -- =============================================================================
+  -- 15. smr_agg_resumen_diario  — Recalculo completo desde smr_fact_ejecucion
+  -- =============================================================================
+  INSERT INTO smr_agg_resumen_diario (
+      fecha_key,
+      proceso_key,
+      total_ejecuciones,
+      ejecuciones_exitosas,
+      ejecuciones_fallidas,
+      ejecuciones_con_warning,
+      ejecuciones_con_reintento,
+      total_registros_procesados,
+      total_registros_exitosos,
+      total_registros_fallidos,
+      porcentaje_exito_promedio,
+      duracion_promedio_minutos,
+      duracion_minima_minutos,
+      duracion_maxima_minutos,
+      duracion_total_minutos,
+      throughput_promedio_rps,
+      porcentaje_calidad_promedio,
+      total_rechazos_calidad,
+      ejecuciones_cumplen_sla,
+      ejecuciones_exceden_sla,
+      porcentaje_cumplimiento_sla,
+      costo_total_dia_usd,
+      organizacion_id
+  )
+  SELECT
+      fe.fecha_key,
+      fe.proceso_key,
+      COUNT(*)                                                                    AS total_ejecuciones,
+      SUM(fe.indicador_exito)                                                     AS ejecuciones_exitosas,
+      SUM(fe.indicador_error)                                                     AS ejecuciones_fallidas,
+      SUM(fe.indicador_warning)                                                   AS ejecuciones_con_warning,
+      SUM(fe.requiere_reintento)                                                  AS ejecuciones_con_reintento,
+      SUM(fe.numero_registros_procesados)                                         AS total_registros_procesados,
+      SUM(fe.numero_registros_exitosos)                                           AS total_registros_exitosos,
+      SUM(fe.numero_registros_fallidos)                                           AS total_registros_fallidos,
+      ROUND(AVG(fe.porcentaje_exito)::numeric, 2)                                AS porcentaje_exito_promedio,
+      ROUND(AVG(fe.duracion_minutos)::numeric, 2)                                AS duracion_promedio_minutos,
+      MIN(fe.duracion_minutos)                                                    AS duracion_minima_minutos,
+      MAX(fe.duracion_minutos)                                                    AS duracion_maxima_minutos,
+      SUM(fe.duracion_minutos)                                                    AS duracion_total_minutos,
+      ROUND(AVG(fe.throughput_registros_por_segundo)::numeric, 2)                AS throughput_promedio_rps,
+      ROUND(AVG(fe.porcentaje_exito)::numeric, 2)                                AS porcentaje_calidad_promedio,
+      SUM(fe.numero_registros_rechazados)                                         AS total_rechazos_calidad,
+      SUM(CASE WHEN fe.excede_sla = 0 AND fe.indicador_exito = 1 THEN 1 ELSE 0 END)
+                                                                                  AS ejecuciones_cumplen_sla,
+      SUM(fe.excede_sla)                                                          AS ejecuciones_exceden_sla,
+      ROUND((SUM(CASE WHEN fe.excede_sla = 0 AND fe.indicador_exito = 1 THEN 1 ELSE 0 END)::numeric
+            / NULLIF(COUNT(*), 0) * 100)::numeric, 2)                            AS porcentaje_cumplimiento_sla,
+      SUM(fe.costo_estimado_usd)                                                  AS costo_total_dia_usd,
+      1
+  FROM smr_fact_ejecucion fe
+  GROUP BY fe.fecha_key, fe.proceso_key;
+
+  -- =============================================================================
+  -- 16. smr_agg_resumen_punto_venta  — Desde smr_fact_lote por punto de venta
+  --     Para simplificar: se distribuyen los lotes entre los primeros 5 PV
+  -- =============================================================================
+  INSERT INTO smr_agg_resumen_punto_venta (
+      fecha_key,
+      punto_venta_key,
+      total_ejecuciones,
+      ejecuciones_exitosas,
+      ejecuciones_fallidas,
+      total_lotes_procesados,
+      total_lotes_exitosos,
+      total_lotes_fallidos,
+      total_registros_procesados,
+      total_registros_exitosos,
+      total_registros_fallidos,
+      porcentaje_exito_promedio,
+      organizacion_id
+  )
+  WITH lotes_por_pv AS (
+      -- Distribuir lotes entre las tiendas de la dimension
+      SELECT
+          fl.fecha_key,
+          -- Asignar lotes ciclicamente a los 5 primeros puntos de venta
+          CASE (fl.numero_lote % 5)
+              WHEN 0 THEN 4001   -- T001 (desde datos_iniciales)
+              WHEN 1 THEN 4002   -- T002
+              WHEN 2 THEN 4010   -- BAQ001
+              WHEN 3 THEN 4013   -- MDE001
+              ELSE       4015    -- CLO001
+          END                                                                     AS punto_venta_key,
+          fl.lote_exitoso,
+          fl.lote_fallido,
+          fl.numero_registros_lote,
+          fl.numero_registros_exitosos,
+          fl.numero_registros_fallidos
+      FROM smr_fact_lote fl
+  )
+  SELECT
+      l.fecha_key,
+      l.punto_venta_key,
+      1                                                                            AS total_ejecuciones,
+      1                                                                            AS ejecuciones_exitosas,
+      0                                                                            AS ejecuciones_fallidas,
+      COUNT(*)                                                                     AS total_lotes_procesados,
+      SUM(l.lote_exitoso)                                                         AS total_lotes_exitosos,
+      SUM(l.lote_fallido)                                                         AS total_lotes_fallidos,
+      SUM(l.numero_registros_lote)                                                AS total_registros_procesados,
+      SUM(l.numero_registros_exitosos)                                            AS total_registros_exitosos,
+      SUM(l.numero_registros_fallidos)                                            AS total_registros_fallidos,
+      ROUND((SUM(l.numero_registros_exitosos)::numeric /
+            NULLIF(SUM(l.numero_registros_lote), 0) * 100)::numeric, 2)         AS porcentaje_exito_promedio,
+      (SELECT id FROM smr_organizacion LIMIT 1)
+  FROM lotes_por_pv l
+  GROUP BY l.fecha_key, l.punto_venta_key;
+
   RAISE NOTICE '%', v_resumen;
   RETURN v_resumen;
 END;

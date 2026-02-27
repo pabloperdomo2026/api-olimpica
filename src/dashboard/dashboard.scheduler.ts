@@ -26,7 +26,7 @@ export class DashboardScheduler implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_2_HOURS)
   async verificarParametroDashboard(): Promise<void> {
     const todos = await this.parametrosRepo.listarTodos();
     const param = todos.find(
