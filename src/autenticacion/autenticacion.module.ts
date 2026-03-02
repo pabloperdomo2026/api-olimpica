@@ -6,6 +6,8 @@ import { UsuarioModule } from '../usuario/usuario.module';
 import { LoginUseCase } from '../orquestacion/casos-de-uso/login.use-case';
 import { AutenticacionController } from './autenticacion.controller';
 import { JwtStrategy } from './estrategias/jwt.strategy';
+import { SolicitarOtpUseCase } from './casos-de-uso/solicitar-otp.use-case';
+import { CorreoService } from './servicios/correo.service';
 
 @Module({
   imports: [
@@ -23,7 +25,7 @@ import { JwtStrategy } from './estrategias/jwt.strategy';
     }),
   ],
   controllers: [AutenticacionController],
-  providers: [LoginUseCase, JwtStrategy],
+  providers: [LoginUseCase, JwtStrategy, SolicitarOtpUseCase, CorreoService],
   exports: [JwtModule],
 })
 export class AutenticacionModule {}
