@@ -1,19 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsuarioRepository } from '../../usuario/usuario.repository';
 import { CorreoService } from '../servicios/correo.service';
-
-interface DatosOtp {
-  otp: string;
-  expiracion: Date;
-}
+import { OtpRepository } from '../repositories/otp.repository';
 
 @Injectable()
 export class SolicitarOtpUseCase {
-  private readonly otps = new Map<string, DatosOtp>();
-
   constructor(
     private readonly usuarioRepository: UsuarioRepository,
     private readonly correoService: CorreoService,
+    private readonly otpRepository: OtpRepository,
   ) {}
 
   async execute(correo: string): Promise<{ mensaje: string }> {
@@ -23,33 +18,46 @@ export class SolicitarOtpUseCase {
       throw new NotFoundException('No existe una cuenta registrada con ese correo electronico');
     }
 
-    const otp = this.generarOtp();
-    const expiracion = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+    // Elimina OTPs previos del usuario antes de crear uno nuevo
+    await this.otpRepository.invalidarOtpsDeUsuario(usuario.id);
 
-    this.otps.set(correo, { otp, expiracion });
+    // Genera un codigo unico que no exista en BD
+    const codigo = await this.generarCodigoUnico();
+    const fechaExpiracion = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
 
-    await this.correoService.enviarOtp(correo, otp);
+    await this.otpRepository.crear(usuario.id, codigo, fechaExpiracion);
+    await this.correoService.enviarOtp(correo, codigo);
 
     return { mensaje: 'Se envio un codigo de verificacion a tu correo electronico' };
   }
 
-  verificarOtp(correo: string, otp: string): boolean {
-    const datos = this.otps.get(correo);
+  async verificarOtp(correo: string, codigo: string): Promise<boolean> {
+    const usuario = await this.usuarioRepository.obtenerPorEmail(correo);
+    if (!usuario) return false;
 
-    if (!datos) return false;
+    const otp = await this.otpRepository.buscarPorCodigoYUsuario(usuario.id, codigo);
+    if (!otp) return false;
 
-    if (new Date() > datos.expiracion) {
-      this.otps.delete(correo);
+    if (new Date() > otp.fechaExpiracion) {
+      await this.otpRepository.marcarComoUsado(otp.otpId);
       return false;
     }
 
-    const valido = datos.otp === otp;
-    if (valido) this.otps.delete(correo);
-
-    return valido;
+    await this.otpRepository.marcarComoUsado(otp.otpId);
+    return true;
   }
 
-  private generarOtp(): string {
-    return Math.floor(1000 + Math.random() * 9000).toString();
+  private async generarCodigoUnico(): Promise<string> {
+    let codigo: string;
+    let intentos = 0;
+
+    do {
+      codigo = Math.floor(1000 + Math.random() * 9000).toString();
+      const existe = await this.otpRepository.buscarPorCodigo(codigo);
+      if (!existe) break;
+      intentos++;
+    } while (intentos < 5);
+
+    return codigo;
   }
 }
