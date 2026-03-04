@@ -9,6 +9,8 @@ import { CrearEjecucionUseCase } from './casos-de-uso/crear-ejecucion.use-case';
 import { CrearEventoEjecucionUseCase } from './casos-de-uso/crear-evento-ejecucion.use-case';
 import { FinalizarEventoEjecucionUseCase } from './casos-de-uso/finalizar-evento-ejecucion.use-case';
 import { ObtenerDashboardUseCase } from './casos-de-uso/obtener-dashboard.use-case';
+import { ObtenerAlertasEjecucionUseCase } from './casos-de-uso/obtener-alertas-ejecucion.use-case';
+import { AlertaEnviadaEntity } from '../alerta-enviada/alerta-enviada.entity';
 import { EstadoProcesoModule } from '../status-proceso/estado-proceso.module';
 import { ProcesoModule } from '../proceso/proceso.module';
 import { OrquestacionModule } from 'src/orquestacion/orquestacion.module';
@@ -20,7 +22,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EjecucionProcesoEntity, ParametrosGlobalesEntity, OrganizacionEntity]),
+    TypeOrmModule.forFeature([EjecucionProcesoEntity, ParametrosGlobalesEntity, OrganizacionEntity, AlertaEnviadaEntity]),
     EstadoProcesoModule,
     ProcesoModule,
     OrquestacionModule,
@@ -37,6 +39,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
     CrearEventoEjecucionUseCase,
     FinalizarEventoEjecucionUseCase,
     ObtenerDashboardUseCase,
+    ObtenerAlertasEjecucionUseCase,
   ],
   exports: [EjecucionProcesoService],
 })

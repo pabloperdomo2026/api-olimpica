@@ -5,7 +5,7 @@ export interface ConfiguracionSlaResponse {
   procesoCodigo?: string;
   nombre: string;
   tiempoMaximoEjecucionMinutos?: number;
-  horaLimiteFinalizacion?: Date;
+  horaLimiteFinalizacion?: string;
   porcentajeRegistrosMinimo?: number;
   umbralErrorPorcentaje?: number;
   activo: boolean;

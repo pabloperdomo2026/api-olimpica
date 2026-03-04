@@ -86,6 +86,17 @@ export class EjecucionProcesoController {
     return this.ejecucionProcesoService.obtenerDashboard();
   }
 
+  @Get(':id/alertas')
+  @ApiOperation({
+    summary: 'Obtener alertas de una ejecucion',
+    description: 'Retorna las alertas enviadas asociadas a una ejecucion especifica',
+  })
+  @ApiParam({ name: 'id', description: 'ID de la ejecucion' })
+  @ApiResponse({ status: 200, description: 'Alertas obtenidas exitosamente' })
+  async obtenerAlertas(@Param('id') id: string) {
+    return this.ejecucionProcesoService.obtenerAlertas(id);
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Obtener ejecucion por ID',

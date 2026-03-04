@@ -4,6 +4,7 @@ import { CrearEjecucionUseCase } from './casos-de-uso/crear-ejecucion.use-case';
 import { CrearEventoEjecucionUseCase } from './casos-de-uso/crear-evento-ejecucion.use-case';
 import { FinalizarEventoEjecucionUseCase } from './casos-de-uso/finalizar-evento-ejecucion.use-case';
 import { ObtenerDashboardUseCase } from './casos-de-uso/obtener-dashboard.use-case';
+import { ObtenerAlertasEjecucionUseCase, AlertaEjecucionResponse } from './casos-de-uso/obtener-alertas-ejecucion.use-case';
 import { CrearEjecucionProcesoDto, CrearEventoEjecucionDto } from './dtos';
 import { EjecucionProcesoResponse } from './interfaces/ejecucion-proceso-response.interface';
 import { DashboardResponse } from './interfaces/dashboard-response.interface';
@@ -16,6 +17,7 @@ export class EjecucionProcesoService {
     private readonly crearEventoEjecucionUseCase: CrearEventoEjecucionUseCase,
     private readonly finalizarEventoEjecucionUseCase: FinalizarEventoEjecucionUseCase,
     private readonly obtenerDashboardUseCase: ObtenerDashboardUseCase,
+    private readonly obtenerAlertasEjecucionUseCase: ObtenerAlertasEjecucionUseCase,
   ) {}
 
   async listarTodos(procesoId?: string): Promise<EjecucionProcesoResponse[]> {
@@ -40,5 +42,9 @@ export class EjecucionProcesoService {
 
   async obtenerDashboard(): Promise<DashboardResponse> {
     return this.obtenerDashboardUseCase.execute();
+  }
+
+  async obtenerAlertas(ejecucionId: string): Promise<AlertaEjecucionResponse[]> {
+    return this.obtenerAlertasEjecucionUseCase.execute(ejecucionId);
   }
 }

@@ -27,8 +27,8 @@ export class ConfiguracionSlaEntity {
   @Column({ name: 'tiempo_maximo_ejecucion_minutos', type: 'numeric', nullable: true })
   tiempoMaximoEjecucionMinutos: number;
 
-  @Column({ name: 'hora_limite_finalizacion', type: 'timestamp', nullable: true })
-  horaLimiteFinalizacion: Date;
+  @Column({ name: 'hora_limite_finalizacion', type: 'time', nullable: true })
+  horaLimiteFinalizacion: string;
 
   @Column({ name: 'porcentaje_registros_minimo', type: 'numeric', precision: 5, scale: 2, nullable: true })
   porcentajeRegistrosMinimo: number;

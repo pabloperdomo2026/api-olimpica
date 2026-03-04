@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
+import { AlertaEnviadaEntity } from '../alerta-enviada/alerta-enviada.entity';
 import { OrganizacionEntity } from '../organizacion/organizacion.entity';
 import { ProcesoEntity } from '../proceso/proceso.entity';
 import { EstadoProcesoEntity } from '../status-proceso/estado-proceso.entity';
@@ -75,4 +77,7 @@ export class EjecucionProcesoEntity {
 
   @Column({ name: 'usuario_modificacion', type: 'varchar', length: 100, nullable: true })
   usuarioModificacion: string;
+
+  @OneToMany(() => AlertaEnviadaEntity, (alerta) => alerta.ejecucionProceso)
+  alertas: AlertaEnviadaEntity[];
 }

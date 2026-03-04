@@ -14,9 +14,7 @@ export class CrearConfiguracionSlaUseCase {
         procesoId: dto.procesoId,
         nombre: dto.nombre,
         tiempoMaximoEjecucionMinutos: dto.tiempoMaximoEjecucionMinutos,
-        horaLimiteFinalizacion: dto.horaLimiteFinalizacion
-          ? new Date(dto.horaLimiteFinalizacion)
-          : undefined,
+        horaLimiteFinalizacion: dto.horaLimiteFinalizacion,
         porcentajeRegistrosMinimo: dto.porcentajeRegistrosMinimo,
         umbralErrorPorcentaje: dto.umbralErrorPorcentaje,
         activo: 'S',
