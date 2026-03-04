@@ -34,10 +34,25 @@ export class CrearEventoEjecucionUseCase {
         (ahora.getTime() - ejecucion.fechaHoraInicio.getTime()) / 1000,
       );
 
+      let registros: any = {};
+
+      if (datos?.p_total_registros) {
+        registros.numeroRegistrosProcesados = datos.p_total_registros;
+      }
+
+      if (datos?.p_registros_fallidos) {
+        registros.numeroRegistrosFallidos = datos.p_registros_fallidos;
+      }
+
+      if (datos?.p_registros_exitosos) {
+        registros.numeroRegistrosExitosos = datos.p_registros_exitosos;
+      }
+
       const actualizada = await this.ejecucionProcesoRepository.actualizar(ejecucionProcesoId, {
         statusProcesoId: estado.id,
         fechaHoraFin: ahora,
         duracionSegundos,
+        ...registros,
       });
 
       return ejecucionProcesoMapper(actualizada);
