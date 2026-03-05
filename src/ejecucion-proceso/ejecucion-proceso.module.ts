@@ -10,6 +10,7 @@ import { CrearEventoEjecucionUseCase } from './casos-de-uso/crear-evento-ejecuci
 import { FinalizarEventoEjecucionUseCase } from './casos-de-uso/finalizar-evento-ejecucion.use-case';
 import { ObtenerDashboardUseCase } from './casos-de-uso/obtener-dashboard.use-case';
 import { ObtenerAlertasEjecucionUseCase } from './casos-de-uso/obtener-alertas-ejecucion.use-case';
+import { CrearNotificacionUseCase } from './casos-de-uso/crear-notificacion.use-case';
 import { AlertaEnviadaEntity } from '../alerta-enviada/alerta-enviada.entity';
 import { EstadoProcesoModule } from '../status-proceso/estado-proceso.module';
 import { ProcesoModule } from '../proceso/proceso.module';
@@ -40,6 +41,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
     FinalizarEventoEjecucionUseCase,
     ObtenerDashboardUseCase,
     ObtenerAlertasEjecucionUseCase,
+    CrearNotificacionUseCase,
   ],
   exports: [EjecucionProcesoService],
 })

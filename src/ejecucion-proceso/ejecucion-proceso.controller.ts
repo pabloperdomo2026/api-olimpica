@@ -86,6 +86,16 @@ export class EjecucionProcesoController {
     return this.ejecucionProcesoService.obtenerDashboard();
   }
 
+  @Post('notificaciones')
+  @ApiOperation({
+    summary: 'Crear notificacion de ejecucion',
+    description: 'Registra una notificacion enviada asociada a una ejecucion de proceso',
+  })
+  @ApiResponse({ status: 201, description: 'Notificacion registrada exitosamente' })
+  async crearNotificacion(@Body() dto: any): Promise<any> {
+    return this.ejecucionProcesoService.crearNotificacion(dto);
+  }
+
   @Get(':id/alertas')
   @ApiOperation({
     summary: 'Obtener alertas de una ejecucion',
