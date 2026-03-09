@@ -16,6 +16,7 @@ import { ConfiguracionSlaEntity } from '../configuracion-sla/configuracion-sla.e
 import { ConfiguracionSlaRepository } from '../configuracion-sla/configuracion-sla.repository';
 import { ConfiguracionAlertaEntity } from '../configuracion-alerta/configuracion-alerta.entity';
 import { ConfiguracionAlertaRepository } from '../configuracion-alerta/configuracion-alerta.repository';
+import { CorreoService } from '../autenticacion/servicios/correo.service';
 import { EstadoProcesoModule } from '../status-proceso/estado-proceso.module';
 import { ProcesoModule } from '../proceso/proceso.module';
 import { OrquestacionModule } from 'src/orquestacion/orquestacion.module';
@@ -40,6 +41,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
     ParametrosGlobalesRepository,
     ConfiguracionSlaRepository,
     ConfiguracionAlertaRepository,
+    CorreoService,
     OrganizacionRepository,
     ListarEjecucionesUseCase,
     CrearEjecucionUseCase,

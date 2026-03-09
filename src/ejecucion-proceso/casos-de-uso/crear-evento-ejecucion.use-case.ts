@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
 import { EjecucionProcesoRepository } from '../ejecucion-proceso.repository';
 import { EstadoProcesoRepository } from '../../status-proceso/estado-proceso.repository';
 import { ConfiguracionAlertaRepository } from '../../configuracion-alerta/configuracion-alerta.repository';
+import { CorreoService } from '../../autenticacion/servicios/correo.service';
 import { CrearEventoEjecucionDto } from '../dtos/crear-evento-ejecucion.dto';
 import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-response.interface';
 import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
@@ -13,6 +14,7 @@ export class CrearEventoEjecucionUseCase {
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
     private readonly configuracionAlertaRepository: ConfiguracionAlertaRepository,
+    private readonly correoService: CorreoService,
   ) {}
 
   async execute(dto: any): Promise<EjecucionProcesoResponse> {
@@ -61,7 +63,17 @@ export class CrearEventoEjecucionUseCase {
         const alertas = await this.configuracionAlertaRepository.listarPorProcesoId(ejecucion.procesoId);
         const alertasaEnviar: any = alertas.find((alerta) => alerta.condicionDisparo === "status='EXITOSO'");
         const destinatarios = alertasaEnviar?.recipiente?.emailsDestino;
-        console.log('[CrearEventoEjecucion] configuraciones de alerta del proceso:', destinatarios);
+        const emails = this.obtenerDestinatarios(destinatarios);
+        const templateMensaje = alertasaEnviar?.templateMensaje;
+        console.log('[CrearEventoEjecucion] configuraciones de alerta del proceso:', emails, templateMensaje);
+
+        if (emails.length > 0 && templateMensaje) {
+          await Promise.all(
+            emails.map((email) =>
+              this.correoService.enviarMensaje(email, 'Estado del proceso: EXITOSO', templateMensaje),
+            ),
+          );
+        }
       }
 
       return ejecucionProcesoMapper(actualizada);
@@ -74,5 +86,10 @@ export class CrearEventoEjecucionUseCase {
         error.status || 500,
       );
     }
+  }
+
+  private obtenerDestinatarios(destinatarios: string): string[] {
+    if (!destinatarios) return [];
+    return destinatarios.split(',').map((email) => email.trim()).filter(Boolean);
   }
 }

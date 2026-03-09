@@ -44,6 +44,31 @@ export class CorreoService {
     return Buffer.from(lineas.join('\r\n')).toString('base64url');
   }
 
+  async enviarMensaje(destinatario: string, asunto: string, html: string): Promise<void> {
+    const remitente = this.configService.get<string>('MAIL', '');
+
+    try {
+      const tokenAcceso = await this.obtenerTokenAcceso();
+
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials({ access_token: tokenAcceso });
+
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      const raw = this.construirMensajeRaw(destinatario, remitente, asunto, html);
+
+      await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: { raw },
+      });
+
+      this.logger.log(`Correo enviado a: ${destinatario} | Asunto: ${asunto}`);
+    } catch (error) {
+      this.logger.error(`Fallo al enviar correo a ${destinatario}: ${error?.message}`);
+      throw new InternalServerErrorException('No se pudo enviar el correo');
+    }
+  }
+
   async enviarOtp(destinatario: string, otp: string): Promise<void> {
     const remitente = this.configService.get<string>('MAIL', '');
 
