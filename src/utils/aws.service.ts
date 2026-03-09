@@ -4,6 +4,7 @@ import {
   SFNClient,
   StartExecutionCommand,
   StartExecutionCommandInput,
+  StartExecutionCommandOutput,
 } from '@aws-sdk/client-sfn';
 
 @Injectable()
@@ -37,7 +38,7 @@ export class AwsService {
       input: JSON.stringify(input),
     };
     const command = new StartExecutionCommand(params);
-    const response = await this.sfn.send(command);
+    const response = await this.sfn.send(command) as StartExecutionCommandOutput;
     return {
       executionArn: response.executionArn ?? '',
       startDate: response.startDate ?? new Date(),
