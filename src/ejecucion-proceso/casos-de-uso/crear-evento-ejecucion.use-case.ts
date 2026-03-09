@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
 import { EjecucionProcesoRepository } from '../ejecucion-proceso.repository';
 import { EstadoProcesoRepository } from '../../status-proceso/estado-proceso.repository';
+import { ConfiguracionAlertaRepository } from '../../configuracion-alerta/configuracion-alerta.repository';
 import { CrearEventoEjecucionDto } from '../dtos/crear-evento-ejecucion.dto';
 import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-response.interface';
 import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
@@ -11,6 +12,7 @@ export class CrearEventoEjecucionUseCase {
   constructor(
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
+    private readonly configuracionAlertaRepository: ConfiguracionAlertaRepository,
   ) {}
 
   async execute(dto: any): Promise<EjecucionProcesoResponse> {
@@ -54,6 +56,13 @@ export class CrearEventoEjecucionUseCase {
         duracionSegundos,
         ...registros,
       });
+
+      if (estadoCodigo === 'EXITOSO') {
+        const alertas = await this.configuracionAlertaRepository.listarPorProcesoId(ejecucion.procesoId);
+        const alertasaEnviar: any = alertas.find((alerta) => alerta.condicionDisparo === "status='EXITOSO'");
+        const destinatarios = alertasaEnviar?.recipiente?.emailsDestino;
+        console.log('[CrearEventoEjecucion] configuraciones de alerta del proceso:', destinatarios);
+      }
 
       return ejecucionProcesoMapper(actualizada);
     } catch (error) {

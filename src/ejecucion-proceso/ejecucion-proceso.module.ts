@@ -14,6 +14,8 @@ import { CrearNotificacionUseCase } from './casos-de-uso/crear-notificacion.use-
 import { AlertaEnviadaEntity } from '../alerta-enviada/alerta-enviada.entity';
 import { ConfiguracionSlaEntity } from '../configuracion-sla/configuracion-sla.entity';
 import { ConfiguracionSlaRepository } from '../configuracion-sla/configuracion-sla.repository';
+import { ConfiguracionAlertaEntity } from '../configuracion-alerta/configuracion-alerta.entity';
+import { ConfiguracionAlertaRepository } from '../configuracion-alerta/configuracion-alerta.repository';
 import { EstadoProcesoModule } from '../status-proceso/estado-proceso.module';
 import { ProcesoModule } from '../proceso/proceso.module';
 import { OrquestacionModule } from 'src/orquestacion/orquestacion.module';
@@ -25,7 +27,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EjecucionProcesoEntity, ParametrosGlobalesEntity, OrganizacionEntity, AlertaEnviadaEntity, ConfiguracionSlaEntity]),
+    TypeOrmModule.forFeature([EjecucionProcesoEntity, ParametrosGlobalesEntity, OrganizacionEntity, AlertaEnviadaEntity, ConfiguracionSlaEntity, ConfiguracionAlertaEntity]),
     EstadoProcesoModule,
     ProcesoModule,
     OrquestacionModule,
@@ -37,6 +39,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
     EjecucionProcesoRepository,
     ParametrosGlobalesRepository,
     ConfiguracionSlaRepository,
+    ConfiguracionAlertaRepository,
     OrganizacionRepository,
     ListarEjecucionesUseCase,
     CrearEjecucionUseCase,

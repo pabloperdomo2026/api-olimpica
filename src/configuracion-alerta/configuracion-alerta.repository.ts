@@ -38,4 +38,11 @@ export class ConfiguracionAlertaRepository {
   async eliminar(id: string): Promise<void> {
     await this.repositorio.delete(id);
   }
+
+  async listarPorProcesoId(procesoId: string): Promise<ConfiguracionAlertaEntity[]> {
+    return this.repositorio.find({
+      where: { procesoId, activo: 'S' },
+      relations: ['tipoAlerta', 'recipiente'],
+    });
+  }
 }
