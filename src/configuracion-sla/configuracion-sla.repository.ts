@@ -38,4 +38,10 @@ export class ConfiguracionSlaRepository {
   async eliminar(id: string): Promise<void> {
     await this.repositorio.delete(id);
   }
+
+  async obtenerPorProcesoId(procesoId: string): Promise<ConfiguracionSlaEntity | null> {
+    return this.repositorio.findOne({
+      where: { procesoId, activo: 'S' },
+    });
+  }
 }

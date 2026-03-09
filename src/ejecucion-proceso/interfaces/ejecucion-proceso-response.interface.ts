@@ -15,6 +15,7 @@ export interface EjecucionProcesoResponse {
   numeroRegistrosExitosos?: number;
   numeroRegistrosFallidos?: number;
   duracionSegundos?: number;
+  configuracionSlaSegundos?: number;
   usuarioSolicita?: string;
   fechaCreacion: Date;
   fechaModificacion?: Date;
