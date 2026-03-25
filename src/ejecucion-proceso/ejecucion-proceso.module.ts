@@ -24,6 +24,7 @@ import { ParametrosGlobalesRepository } from 'src/parametros-globales/parametros
 import { OrganizacionRepository } from 'src/organizacion/organizacion.repository';
 import { OrganizacionEntity } from 'src/organizacion/organizacion.entity';
 import { OrganizacionModule } from 'src/organizacion/organizacion.module';
+import { CorreoService } from 'src/utils/ses.service';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { OrganizacionModule } from 'src/organizacion/organizacion.module';
     ConfiguracionSlaRepository,
     ConfiguracionAlertaRepository,
     OrganizacionRepository,
+    CorreoService,
     ListarEjecucionesUseCase,
     CrearEjecucionUseCase,
     CrearEventoEjecucionUseCase,

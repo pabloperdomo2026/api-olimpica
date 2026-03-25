@@ -1,6 +1,4 @@
 import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { EjecucionProcesoRepository } from '../ejecucion-proceso.repository';
 import { EstadoProcesoRepository } from '../../status-proceso/estado-proceso.repository';
 import { ConfiguracionAlertaRepository } from '../../configuracion-alerta/configuracion-alerta.repository';
@@ -8,6 +6,7 @@ import { CrearEventoEjecucionDto } from '../dtos/crear-evento-ejecucion.dto';
 import { EjecucionProcesoResponse } from '../interfaces/ejecucion-proceso-response.interface';
 import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
 import { EjecucionProcesoEntity } from '../ejecucion-proceso.entity';
+import { CorreoService } from '../../utils/ses.service';
 
 @Injectable()
 export class CrearEventoEjecucionUseCase {
@@ -15,7 +14,7 @@ export class CrearEventoEjecucionUseCase {
     private readonly ejecucionProcesoRepository: EjecucionProcesoRepository,
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
     private readonly configuracionAlertaRepository: ConfiguracionAlertaRepository,
-    private readonly configService: ConfigService,
+    private readonly correoService: CorreoService,
   ) {}
 
   async execute(dto: any): Promise<EjecucionProcesoResponse> {
@@ -70,7 +69,7 @@ export class CrearEventoEjecucionUseCase {
 
         if (emails.length > 0 && templateMensaje) {
           await Promise.all(
-            emails.map((email) => this.enviarCorreoSes(email, 'Estado del proceso: EXITOSO', templateMensaje)),
+            emails.map((email) => this.correoService.enviarCorreo(email, 'Estado del proceso: EXITOSO', templateMensaje)),
           );
         }
       }
@@ -84,36 +83,6 @@ export class CrearEventoEjecucionUseCase {
         },
         error.status || 500,
       );
-    }
-  }
-
-  private async enviarCorreoSes(destinatario: string, asunto: string, html: string): Promise<void> {
-    try {
-      const cliente = new SESClient({
-        region: this.configService.get<string>('AWS_REGION', 'us-east-1'),
-        credentials: {
-          accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY', ''),
-          secretAccessKey: this.configService.get<string>('AWS_SECRET_KEY', ''),
-        },
-      });
-
-      const comando = new SendEmailCommand({
-        Source: this.configService.get<string>('SES_FROM_EMAIL'),
-        Destination: {
-          ToAddresses: [destinatario],
-        },
-        Message: {
-          Subject: { Data: asunto, Charset: 'UTF-8' },
-          Body: {
-            Html: { Data: html, Charset: 'UTF-8' },
-          },
-        },
-      });
-
-      await cliente.send(comando);
-      console.log(`[CrearEventoEjecucion] Correo enviado a: ${destinatario}`);
-    } catch (error) {
-      console.error(`[CrearEventoEjecucion] Error al enviar correo a ${destinatario}:`, error?.message ?? error);
     }
   }
 
