@@ -9,6 +9,7 @@ import { CrearNotificacionUseCase } from './casos-de-uso/crear-notificacion.use-
 import { CrearEjecucionProcesoDto, CrearEventoEjecucionDto } from './dtos';
 import { EjecucionProcesoResponse } from './interfaces/ejecucion-proceso-response.interface';
 import { DashboardResponse } from './interfaces/dashboard-response.interface';
+import { DetenerEjecucionUseCase } from './casos-de-uso/detener-ejecucion.use-case';
 
 @Injectable()
 export class EjecucionProcesoService {
@@ -20,6 +21,7 @@ export class EjecucionProcesoService {
     private readonly obtenerDashboardUseCase: ObtenerDashboardUseCase,
     private readonly obtenerAlertasEjecucionUseCase: ObtenerAlertasEjecucionUseCase,
     private readonly crearNotificacionUseCase: CrearNotificacionUseCase,
+    private readonly detenerEjecucionUseCase: DetenerEjecucionUseCase,
   ) {}
 
   async listarTodos(procesoId?: string): Promise<EjecucionProcesoResponse[]> {
@@ -32,6 +34,10 @@ export class EjecucionProcesoService {
 
   async crear(dto: CrearEjecucionProcesoDto): Promise<EjecucionProcesoResponse> {
     return this.crearEjecucionUseCase.execute(dto);
+  }
+
+  async detener(dto: any): Promise<EjecucionProcesoResponse> {
+    return this.detenerEjecucionUseCase.execute(dto);
   }
 
   async registrarEvento(dto: CrearEventoEjecucionDto): Promise<EjecucionProcesoResponse> {

@@ -25,6 +25,7 @@ import { OrganizacionRepository } from 'src/organizacion/organizacion.repository
 import { OrganizacionEntity } from 'src/organizacion/organizacion.entity';
 import { OrganizacionModule } from 'src/organizacion/organizacion.module';
 import { CorreoService } from 'src/utils/ses.service';
+import { DetenerEjecucionUseCase } from './casos-de-uso/detener-ejecucion.use-case';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CorreoService } from 'src/utils/ses.service';
     ObtenerDashboardUseCase,
     ObtenerAlertasEjecucionUseCase,
     CrearNotificacionUseCase,
+    DetenerEjecucionUseCase
   ],
   exports: [EjecucionProcesoService],
 })

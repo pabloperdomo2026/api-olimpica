@@ -33,6 +33,19 @@ export class EjecucionProcesoController {
     return this.ejecucionProcesoService.crear(dto);
   }
 
+  @Post(':id/detener')
+  @ApiOperation({
+    summary: 'Crear ejecucion',
+    description: 'Inicia una nueva ejecucion manual de un proceso ETL',
+  })
+  @ApiResponse({ status: 201, description: 'Ejecucion creada exitosamente' })
+  @ApiResponse({ status: 404, description: 'Proceso o estado inicial no encontrado' })
+  async detener(
+    @Param('id') id: string,
+  ): Promise<EjecucionProcesoResponse> {
+    return this.ejecucionProcesoService.detener(id);
+  }
+
   @Post('eventos')
   @ApiOperation({
     summary: 'Registrar evento de ejecucion',

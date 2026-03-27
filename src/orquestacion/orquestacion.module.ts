@@ -4,6 +4,7 @@ import { CrearFrameworkOrquestacionUseCase } from "src/orquestacion/casos-de-uso
 import { CrearMedallonOrquestacionUseCase } from "src/orquestacion/casos-de-uso/crear-medallon-orquestacion.use-case";
 import { CrearPublicacionOrquestacionUseCase } from "src/orquestacion/casos-de-uso/crear-publicacion-orquestacion.use-case";
 import { AwsService } from "src/utils/aws.service";
+import { DetenerFrameworkOrquestacionUseCase } from "./casos-de-uso/detener-framework-orquestacion.use-case";
 
 @Module({
     controllers: [OrquestacionController],
@@ -12,12 +13,14 @@ import { AwsService } from "src/utils/aws.service";
         CrearFrameworkOrquestacionUseCase,
         CrearMedallonOrquestacionUseCase,
         CrearPublicacionOrquestacionUseCase,
+        DetenerFrameworkOrquestacionUseCase
     ],
     exports: [
         AwsService,
         CrearFrameworkOrquestacionUseCase,
         CrearMedallonOrquestacionUseCase,
         CrearPublicacionOrquestacionUseCase,
+        DetenerFrameworkOrquestacionUseCase,
     ],
 })
 export class OrquestacionModule { }

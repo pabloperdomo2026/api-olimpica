@@ -5,6 +5,8 @@ import {
   StartExecutionCommand,
   StartExecutionCommandInput,
   StartExecutionCommandOutput,
+  StopExecutionCommand,
+  StopExecutionCommandInput,
 } from '@aws-sdk/client-sfn';
 
 @Injectable()
@@ -43,5 +45,19 @@ export class AwsService {
       executionArn: response.executionArn ?? '',
       startDate: response.startDate ?? new Date(),
     };
+  }
+
+  /**
+   * Detiene una ejecución en curso de AWS Step Functions.
+   * @param executionArn ARN de la ejecución a detener
+   * @param causa Motivo de la detención
+   */
+  async stopStepFunctionExecution(executionArn: string, causa?: string): Promise<void> {
+    const params: StopExecutionCommandInput = {
+      executionArn,
+      cause: causa ?? 'Detenido manualmente por el usuario',
+    };
+    const command = new StopExecutionCommand(params);
+    await this.sfn.send(command);
   }
 }
