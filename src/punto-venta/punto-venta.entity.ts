@@ -15,8 +15,8 @@ import {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ name: 'organizacion_id', type: 'uuid' })
-    organizacionId: string;
+    @Column({ name: 'organizacion_id', type: 'uuid', nullable: true })
+    organizacionId?: string;
 
     @ManyToOne(() => OrganizacionEntity)
     @JoinColumn({ name: 'organizacion_id' })

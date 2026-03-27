@@ -1,6 +1,6 @@
 export interface PuntoVentaResponse {
   id: string;
-  organizacionId: string;
+  organizacionId?: string | null;
   codigoTienda: string;
   nombreTienda: string;
   ciudad?: string;
