@@ -12,11 +12,13 @@ export class CrearPublicacionOrquestacionUseCase {
 
     async execute(dto: CrearPublicacionOrquestacionDto) {
         const region = this.configService.get<string>('AWS_REGION', 'us-east-2');
-        const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
+
+        // Obtiene el Account ID dinámicamente usando STS
+        const accountId = await this.awsService.getAccountId();
 
         if (!accountId) {
             throw new BadRequestException(
-                'AWS_ACCOUNT_ID no está configurada en las variables de entorno',
+                'No se pudo obtener el AWS Account ID',
             );
         }
 
@@ -28,7 +30,7 @@ export class CrearPublicacionOrquestacionUseCase {
 
         // Construir el ARN de la Step Function
         // Formato: arn:aws:states:REGION:ACCOUNT_ID:stateMachine:NAME
-        const stateMachineArn = 'arn:aws:states:us-east-2:315435444246:stateMachine:smr-sfn-publicar-scanntech' // `arn:aws:states:${region}:${accountId}:stateMachine:${dto.stepFunctionName}`;
+        const stateMachineArn = `arn:aws:states:${region}:${accountId}:stateMachine:${dto.stepFunctionName}`;
 
         const body = {
             "p_ambiente": "dev",

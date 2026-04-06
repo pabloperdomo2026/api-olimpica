@@ -12,11 +12,13 @@ export class CrearFrameworkOrquestacionUseCase {
 
     async execute(dto: any) {
         const region = this.configService.get<string>('AWS_REGION', 'us-east-2');
-        const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
-        
+
+        // Obtiene el Account ID dinámicamente usando STS
+        const accountId = await this.awsService.getAccountId();
+
         if (!accountId) {
             throw new BadRequestException(
-                'AWS_ACCOUNT_ID no está configurada en las variables de entorno',
+                'No se pudo obtener el AWS Account ID',
             );
         }
 
@@ -25,7 +27,7 @@ export class CrearFrameworkOrquestacionUseCase {
         //         'El nombre de la Step Function es requerido',
         //     );
         // }
- 
+
         try {
             const result = await this.awsService.startStepFunctionExecution(
                 dto.idWorkflowCloud,

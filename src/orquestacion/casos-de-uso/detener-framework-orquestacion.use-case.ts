@@ -10,15 +10,6 @@ export class DetenerFrameworkOrquestacionUseCase {
     ) {}
 
     async execute(dto: any) {
-        const region = this.configService.get<string>('AWS_REGION', 'us-east-2');
-        const accountId = this.configService.get<string>('AWS_ACCOUNT_ID');
-        
-        if (!accountId) {
-            throw new BadRequestException(
-                'AWS_ACCOUNT_ID no está configurada en las variables de entorno',
-            );
-        }
- 
         try {
             await this.awsService.stopStepFunctionExecution(
                 dto.idWorkflowCloud

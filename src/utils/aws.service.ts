@@ -8,21 +8,53 @@ import {
   StopExecutionCommand,
   StopExecutionCommandInput,
 } from '@aws-sdk/client-sfn';
+import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 
 @Injectable()
 export class AwsService {
   private readonly sfn: SFNClient;
+  private readonly sts: STSClient;
   private readonly region: string;
+  private accountId: string | null = null;
 
   constructor(private readonly configService: ConfigService) {
     this.region = this.configService.get<string>('AWS_REGION', 'us-east-1');
-    this.sfn = new SFNClient({
+
+    // Usa el rol de IAM de la instancia EC2 automáticamente si no hay credenciales explícitas
+    const awsConfig = {
       region: this.region,
-      credentials: {
-        accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY', ''),
-        secretAccessKey: this.configService.get<string>('AWS_SECRET_KEY', ''),
-      },
-    });
+    };
+
+    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY');
+    const secretAccessKey = this.configService.get<string>('AWS_SECRET_KEY');
+
+    if (accessKeyId && secretAccessKey) {
+      // Solo usa credenciales explícitas si están configuradas
+      Object.assign(awsConfig, {
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+      });
+    }
+
+    this.sfn = new SFNClient(awsConfig);
+    this.sts = new STSClient(awsConfig);
+  }
+
+  /**
+   * Obtiene el AWS Account ID usando STS GetCallerIdentity.
+   * Cachea el resultado para evitar múltiples llamadas.
+   */
+  async getAccountId(): Promise<string> {
+    if (this.accountId) {
+      return this.accountId;
+    }
+
+    const command = new GetCallerIdentityCommand({});
+    const response = await this.sts.send(command);
+    this.accountId = response.Account ?? '';
+    return this.accountId;
   }
 
   /**
