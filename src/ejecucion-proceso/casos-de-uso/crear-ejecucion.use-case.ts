@@ -8,6 +8,7 @@ import { ejecucionProcesoMapper } from '../mappers/ejecucion-proceso.mapper';
 import { CrearFrameworkOrquestacionUseCase } from 'src/orquestacion/casos-de-uso';
 import { ParametrosGlobalesRepository } from 'src/parametros-globales/parametros-globales.repository';
 import { OrganizacionRepository } from 'src/organizacion/organizacion.repository';
+import { DateRangeCalculatorService } from 'src/utils/date-range-calculator.service';
 
 @Injectable()
 export class CrearEjecucionUseCase {
@@ -17,7 +18,8 @@ export class CrearEjecucionUseCase {
     private readonly estadoProcesoRepository: EstadoProcesoRepository,
     private readonly parametrosGlobales: ParametrosGlobalesRepository,
     private readonly procesoService: ProcesoService,
-    private readonly crearFrameworkOrquestacionUseCase: CrearFrameworkOrquestacionUseCase
+    private readonly crearFrameworkOrquestacionUseCase: CrearFrameworkOrquestacionUseCase,
+    private readonly dateRangeCalculator: DateRangeCalculatorService
   ) {}
 
   async execute(dto: CrearEjecucionProcesoDto): Promise<EjecucionProcesoResponse> {
@@ -63,12 +65,22 @@ export class CrearEjecucionUseCase {
         usuarioCreacion: dto.usuarioSolicita ?? 'sistema',
       });
 
+      const { fechaInicio, fechaFin } = this.dateRangeCalculator.calculateDateRange({
+        fechaInicio: dto.fechaInicio,
+        fechaFin: dto.fechaFin,
+        deltaInicio: dto.deltaInicio,
+        deltaFin: dto.deltaFin,
+        diaInicial: dto.diaInicial,
+        diaFinal: dto.diaFinal,
+        numSemanasUmbral: dto.numSemanasUmbral,
+      });
+
       parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
       parametrosResueltos['p_organizacion_id'] = proceso.organizacionId;
       parametrosResueltos['p_organizacion_codigo'] = organizacion?.codigoOrg;
       parametrosResueltos['p_entidad'] = 'ventas';
-      parametrosResueltos['p_fecha_inicio'] = this.formatearFecha(new Date()),
-      parametrosResueltos['p_fecha_fin'] = this.formatearFecha(new Date('2026-02-28T23:59:59')),
+      parametrosResueltos['p_fecha_inicio'] = fechaInicio;
+      parametrosResueltos['p_fecha_fin'] = fechaFin;
       parametrosResueltos['id_local'] = 1
       parametrosResueltos['p_proceso_ejecucion_id'] = ejecucionCreada.id
 
@@ -92,16 +104,6 @@ export class CrearEjecucionUseCase {
         error.status || 500,
       );
     }
-  }
-
-  private formatearFecha(fecha: Date): string {
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const hora = String(fecha.getHours()).padStart(2, '0');
-    const minuto = String(fecha.getMinutes()).padStart(2, '0');
-    const segundo = String(fecha.getSeconds()).padStart(2, '0');
-    return `${anio}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
   }
 
   private async resolverParametrosJson(

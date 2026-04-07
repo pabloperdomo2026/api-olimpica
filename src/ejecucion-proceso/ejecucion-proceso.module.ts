@@ -26,6 +26,7 @@ import { OrganizacionEntity } from 'src/organizacion/organizacion.entity';
 import { OrganizacionModule } from 'src/organizacion/organizacion.module';
 import { CorreoService } from 'src/utils/ses.service';
 import { DetenerEjecucionUseCase } from './casos-de-uso/detener-ejecucion.use-case';
+import { DateRangeCalculatorService } from 'src/utils/date-range-calculator.service';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { DetenerEjecucionUseCase } from './casos-de-uso/detener-ejecucion.use-ca
     ConfiguracionAlertaRepository,
     OrganizacionRepository,
     CorreoService,
+    DateRangeCalculatorService,
     ListarEjecucionesUseCase,
     CrearEjecucionUseCase,
     CrearEventoEjecucionUseCase,
