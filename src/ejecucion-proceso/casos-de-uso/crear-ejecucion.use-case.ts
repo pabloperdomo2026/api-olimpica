@@ -78,10 +78,8 @@ export class CrearEjecucionUseCase {
       parametrosResueltos['p_parametros_globales'] = parametrosGlobalesArray;
       parametrosResueltos['p_organizacion_id'] = proceso.organizacionId;
       parametrosResueltos['p_organizacion_codigo'] = organizacion?.codigoOrg;
-      parametrosResueltos['p_entidad'] = 'ventas';
       parametrosResueltos['p_fecha_inicio'] = fechaInicio;
       parametrosResueltos['p_fecha_fin'] = fechaFin;
-      parametrosResueltos['id_local'] = 1
       parametrosResueltos['p_proceso_ejecucion_id'] = ejecucionCreada.id
 
       console.log('parametros resueltos:', parametrosResueltos);
