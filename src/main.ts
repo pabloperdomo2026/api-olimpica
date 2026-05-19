@@ -1,9 +1,17 @@
+import { config } from 'dotenv';
+config();
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { resolveDbCredentialsFromSecretsManager } from './database/secrets.resolver';
 
 async function bootstrap() {
+  if (process.env.ENVIRONMENT === 'PRODUCTION') {
+    await resolveDbCredentialsFromSecretsManager();
+  }
+
   const app = await NestFactory.create(AppModule);
 
   // Global prefix
