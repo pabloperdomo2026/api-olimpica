@@ -10,7 +10,7 @@ interface DbSecret {
 
 export async function resolveDbCredentialsFromSecretsManager(): Promise<void> {
   const secretName = process.env.DB_SECRET_NAME;
-  const region = process.env.AWS_REGION ?? 'us-east-1';
+  const region = process.env.AWS_REGION ?? 'us-east-2';
 
   if (!secretName) {
     throw new Error(
