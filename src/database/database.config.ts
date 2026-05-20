@@ -3,15 +3,21 @@ import { ConfigService } from '@nestjs/config';
 
 export const getDatabaseConfig = (
   configService: ConfigService,
-): TypeOrmModuleOptions => ({
-  type: 'postgres',
-  host: configService.get<string>('DB_HOST'),
-  port: configService.get<number>('DB_PORT'),
-  username: configService.get<string>('DB_USERNAME'),
-  password: configService.get<string>('DB_PASSWORD'),
-  database: configService.get<string>('DB_DATABASE'),
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: true,
-  logging: false,
-  autoLoadEntities: false,
-});
+): TypeOrmModuleOptions => {
+  const isProduction =
+    configService.get<string>('ENVIRONMENT') === 'PRODUCTION';
+
+  return {
+    type: 'postgres',
+    host: configService.get<string>('DB_HOST'),
+    port: configService.get<number>('DB_PORT'),
+    username: configService.get<string>('DB_USERNAME'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_DATABASE'),
+    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    synchronize: true,
+    logging: false,
+    autoLoadEntities: false,
+    ...(isProduction && { ssl: { rejectUnauthorized: false } }),
+  };
+};
