@@ -23,7 +23,7 @@ import { EliminarUsuarioResponse } from './casos-de-uso/eliminar-usuario.use-cas
 
 @ApiTags('Usuarios')
 @ApiBearerAuth()
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
