@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { resolveDbCredentialsFromSecretsManager } from './database/secrets.resolver';
+import { DbAuthErrorFilter } from './database/db-auth-error.filter';
 
 async function bootstrap() {
   if (process.env.ENVIRONMENT === 'PRODUCTION') {
@@ -19,6 +20,8 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors();
+
+  app.useGlobalFilters(new DbAuthErrorFilter());
 
   // Enable validation
   app.useGlobalPipes(

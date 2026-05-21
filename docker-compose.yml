@@ -44,6 +44,12 @@ services:
       - "3003:3003"
     networks:
       - api_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3003/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
 volumes:
   postgres_data:
