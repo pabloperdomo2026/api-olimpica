@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './autenticacion/guards/jwt-auth.guard';
 import { AutenticacionModule } from './autenticacion/autenticacion.module';
 import { OrquestacionModule } from './orquestacion/orquestacion.module';
 import { UsuarioModule } from './usuario/usuario.module';
@@ -87,6 +89,11 @@ import { DashboardModule } from './dashboard/dashboard.module';
     DashboardModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule { }

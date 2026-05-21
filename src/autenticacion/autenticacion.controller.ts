@@ -1,5 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Public } from './decoradores/public.decorator';
 import { LoginUseCase, LoginResponse } from '../orquestacion/casos-de-uso/login.use-case';
 import { SignInDto } from '../orquestacion/dtos/sign-in.dto';
 import { SolicitarOtpUseCase } from './casos-de-uso/solicitar-otp.use-case';
@@ -9,6 +10,7 @@ import { SolicitarOtpDto } from './dtos/solicitar-otp.dto';
 import { VerificarOtpDto } from './dtos/verificar-otp.dto';
 import { ActualizarContrasenaDto } from './dtos/actualizar-contrasena.dto';
 
+@Public()
 @ApiTags('Autenticacion')
 @Controller({ version: '1', path: 'auth' })
 export class AutenticacionController {
