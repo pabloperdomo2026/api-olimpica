@@ -1,18 +1,15 @@
 import { Catch, ExceptionFilter, ArgumentsHost } from '@nestjs/common';
-import { QueryFailedError } from 'typeorm';
 
-const PG_INVALID_PASSWORD = '28P01';
-const PG_INVALID_AUTHORIZATION = '28000';
+const PG_AUTH_CODES = new Set(['28P01', '28000']);
 
-@Catch(QueryFailedError)
+@Catch()
 export class DbAuthErrorFilter implements ExceptionFilter {
-  catch(exception: QueryFailedError, host: ArgumentsHost) {
-    const driverError = (exception as any).driverError;
-    const code: string = driverError?.code;
+  catch(exception: unknown, host: ArgumentsHost) {
+    const code = (exception as any)?.code ?? (exception as any)?.driverError?.code;
 
-    if (code === PG_INVALID_PASSWORD || code === PG_INVALID_AUTHORIZATION) {
+    if (PG_AUTH_CODES.has(code)) {
       console.error(
-        `[DbAuthErrorFilter] PostgreSQL auth error (${code}) — las credenciales rotaron. Reiniciando proceso...`,
+        `[DbAuthErrorFilter] PostgreSQL auth error (${code}) — reiniciando proceso para obtener credenciales frescas.`,
       );
       process.exit(1);
     }
@@ -20,7 +17,7 @@ export class DbAuthErrorFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     ctx.getResponse().status(500).json({
       statusCode: 500,
-      message: 'Database error',
+      message: 'Internal server error',
     });
   }
 }

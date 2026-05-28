@@ -1,6 +1,30 @@
 import { config } from 'dotenv';
 config();
 
+const PG_AUTH_CODES = new Set(['28P01', '28000']);
+
+function isDbAuthError(error: unknown): boolean {
+  const code = (error as any)?.code ?? (error as any)?.driverError?.code;
+  return PG_AUTH_CODES.has(code);
+}
+
+process.on('uncaughtException', (error) => {
+  if (isDbAuthError(error)) {
+    console.error('[uncaughtException] PostgreSQL auth error — reiniciando proceso para obtener credenciales frescas.', error);
+    process.exit(1);
+  }
+  console.error('[uncaughtException] Error no controlado:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  if (isDbAuthError(reason)) {
+    console.error('[unhandledRejection] PostgreSQL auth error — reiniciando proceso para obtener credenciales frescas.', reason);
+    process.exit(1);
+  }
+  console.error('[unhandledRejection] Promesa rechazada sin manejar:', reason);
+});
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
